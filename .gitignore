@@ -27,3 +27,6 @@ venv/
 *.log
 *.bak
 *.tmp
+
+# Nginx runtime certs (issued at deploy time)
+nginx/certs/

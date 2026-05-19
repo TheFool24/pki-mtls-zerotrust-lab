@@ -1,0 +1,10 @@
+[Unit]
+Description=Run thesis cert renewal every 8 hours
+
+[Timer]
+OnBootSec=5min
+OnUnitActiveSec=8h
+Persistent=true
+
+[Install]
+WantedBy=timers.target

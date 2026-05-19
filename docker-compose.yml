@@ -33,10 +33,44 @@ services:
       - "thesis.role=pki-ca"
       - "thesis.tier=infrastructure"
 
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: thesis-nginx
+    hostname: nginx.thesis.local
+    restart: unless-stopped
+    ports:
+      - "10.50.20.200:443:443"
+      - "10.50.20.200:80:80"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./nginx/certs:/etc/nginx/certs:ro
+      - nginx-logs:/var/log/nginx
+    networks:
+      thesis-net:
+        ipv4_address: 172.28.0.20
+        aliases:
+          - nginx.thesis.local
+    depends_on:
+      step-ca:
+        condition: service_healthy
+    healthcheck:
+      # `nginx -t` validates config + cert file accessibility. Busybox wget
+      # can't do client certs, and plain HTTPS hits ssl_verify_client.
+      test: ["CMD", "nginx", "-t"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    labels:
+      - "thesis.role=mtls-proxy"
+      - "thesis.tier=edge"
+
 volumes:
   step-ca-data:
     name: thesis-step-ca-data
     external: true   # Already created during init; don't recreate
+  nginx-logs:
+    name: thesis-nginx-logs
 
 networks:
   thesis-net:
