@@ -9,6 +9,7 @@
 step-ca/db/
 step-ca/certs/intermediate*
 step-ca/certs/root*.key
+step-ca/issued/
 
 # Python
 __pycache__/

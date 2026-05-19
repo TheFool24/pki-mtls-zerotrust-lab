@@ -1,0 +1,48 @@
+# Thesis Lab — Master Controller Services
+# Architecture: PKI + mTLS + Zero Trust laboratory environment
+# Author: jojo (ВУТП, 2026)
+
+services:
+  step-ca:
+    image: smallstep/step-ca:0.28.1
+    container_name: thesis-step-ca
+    hostname: ca.thesis.local
+    restart: unless-stopped
+    ports:
+      - "10.50.20.200:9000:9000"
+    volumes:
+      - step-ca-data:/home/step
+      - ./step-ca/secrets:/secrets:ro
+      # Image entrypoint reads the CA password from /home/step/secrets/password.
+      # Bind-mount our host file to that exact path (overlays the named volume).
+      # Keeping the password OUTSIDE the volume — same volume holding the
+      # encrypted keys must not hold the decryption password.
+      - ./step-ca/secrets/ca-password.txt:/home/step/secrets/password:ro
+    networks:
+      thesis-net:
+        ipv4_address: 172.28.0.10
+        aliases:
+          - ca.thesis.local
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-check-certificate -qO- https://localhost:9000/health 2>/dev/null | grep -q ok"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    labels:
+      - "thesis.role=pki-ca"
+      - "thesis.tier=infrastructure"
+
+volumes:
+  step-ca-data:
+    name: thesis-step-ca-data
+    external: true   # Already created during init; don't recreate
+
+networks:
+  thesis-net:
+    name: thesis-lab-net
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/24
+          gateway: 172.28.0.1
