@@ -1,0 +1,28 @@
+# Secrets — NEVER commit
+**/secrets/
+**/*.key
+**/*.pem
+**/*password*
+.env
+
+# step-ca runtime data (managed by Docker volume)
+step-ca/db/
+step-ca/certs/intermediate*
+step-ca/certs/root*.key
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Editor
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# Build artifacts
+*.log
+*.bak
+*.tmp
