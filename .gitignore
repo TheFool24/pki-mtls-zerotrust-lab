@@ -28,5 +28,8 @@ venv/
 *.bak
 *.tmp
 
+# ...but DO keep thesis evidence captures (committed as artifacts)
+!docs/evidence/**/*.log
+
 # Nginx runtime certs (issued at deploy time)
 nginx/certs/

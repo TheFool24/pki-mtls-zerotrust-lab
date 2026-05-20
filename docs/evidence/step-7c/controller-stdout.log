@@ -1,0 +1,46 @@
+thesis-controller  | INFO:     Started server process [1]
+thesis-controller  | INFO:     Waiting for application startup.
+thesis-controller  | {"service": "thesis-controller", "version": "0.1.0", "environment": "lab", "event": "controller_starting", "level": "info", "timestamp": "2026-05-20T23:01:19.056555Z"}
+thesis-controller  | {"url": "sqlite+aiosqlite:////app/data/thesis.db", "event": "db_initializing", "level": "info", "timestamp": "2026-05-20T23:01:19.056613Z"}
+thesis-controller  | {"event": "db_initialized", "level": "info", "timestamp": "2026-05-20T23:01:19.059344Z"}
+thesis-controller  | INFO:     Application startup complete.
+thesis-controller  | INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+thesis-controller  | INFO:     127.0.0.1:49084 - "GET /api/v1/health HTTP/1.1" 200 OK
+thesis-controller  | INFO:     127.0.0.1:33844 - "GET /api/v1/health HTTP/1.1" 200 OK
+thesis-controller  | {"has_verify": false, "has_dn": false, "event": "mtls_headers_missing", "level": "warning", "timestamp": "2026-05-20T23:01:43.450748Z"}
+thesis-controller  | INFO:     127.0.0.1:33848 - "GET /api/v1/nodes HTTP/1.1" 401 Unauthorized
+thesis-controller  | {"actor": "controller.thesis.local", "count": 0, "event": "nodes_listed", "level": "info", "timestamp": "2026-05-20T23:01:43.662010Z"}
+thesis-controller  | INFO:     127.0.0.1:33856 - "GET /api/v1/nodes HTTP/1.1" 200 OK
+thesis-controller  | INFO:     127.0.0.1:52050 - "GET /api/v1/health HTTP/1.1" 200 OK
+thesis-controller  | INFO:     127.0.0.1:59802 - "GET /api/v1/health HTTP/1.1" 200 OK
+thesis-controller  | INFO:     127.0.0.1:60300 - "GET /api/v1/health HTTP/1.1" 200 OK
+thesis-controller  | INFO:     127.0.0.1:35426 - "GET /api/v1/health HTTP/1.1" 200 OK
+thesis-controller  | INFO:     127.0.0.1:58876 - "GET /api/v1/health HTTP/1.1" 200 OK
+thesis-controller  | INFO:     127.0.0.1:51754 - "GET /api/v1/health HTTP/1.1" 200 OK
+thesis-controller  | INFO:     127.0.0.1:48224 - "GET /api/v1/health HTTP/1.1" 200 OK
+thesis-controller  | INFO:     127.0.0.1:33482 - "GET /api/v1/health HTTP/1.1" 200 OK
+thesis-controller  | INFO:     127.0.0.1:34182 - "GET /api/v1/health HTTP/1.1" 200 OK
+thesis-controller  | INFO:     127.0.0.1:49294 - "GET /api/v1/health HTTP/1.1" 200 OK
+thesis-controller  | INFO:     127.0.0.1:36008 - "GET /api/v1/health HTTP/1.1" 200 OK
+thesis-controller  | INFO:     127.0.0.1:51168 - "GET /api/v1/health HTTP/1.1" 200 OK
+thesis-controller  | INFO:     127.0.0.1:56820 - "GET /api/v1/health HTTP/1.1" 200 OK
+thesis-controller  | INFO:     127.0.0.1:36802 - "GET /api/v1/health HTTP/1.1" 200 OK
+thesis-controller  | INFO:     127.0.0.1:42416 - "GET /api/v1/health HTTP/1.1" 200 OK
+thesis-controller  | INFO:     127.0.0.1:59170 - "GET /api/v1/health HTTP/1.1" 200 OK
+thesis-controller  | INFO:     127.0.0.1:34682 - "GET /api/v1/health HTTP/1.1" 200 OK
+thesis-controller  | INFO:     10.50.20.200:0 - "GET /api/v1/health HTTP/1.1" 200 OK
+thesis-controller  | INFO:     10.50.20.200:0 - "GET /api/v1/whoami HTTP/1.1" 200 OK
+thesis-controller  | {"actor": "controller.thesis.local", "count": 0, "event": "nodes_listed", "level": "info", "timestamp": "2026-05-20T23:10:22.936071Z"}
+thesis-controller  | INFO:     10.50.20.200:0 - "GET /api/v1/nodes HTTP/1.1" 200 OK
+thesis-controller  | INFO:     127.0.0.1:54302 - "GET /api/v1/health HTTP/1.1" 200 OK
+thesis-controller  | INFO:     10.50.20.200:0 - "GET /api/v1/whoami HTTP/1.1" 200 OK
+thesis-controller  | {"event_id": 1, "actor_cn": "pi-test.thesis.local", "action": "node.register", "target": "node:pi-test", "result": "success", "details": {"role": "valid", "ip": "10.50.30.99"}, "event": "audit_event", "level": "info", "timestamp": "2026-05-20T23:10:51.058678Z"}
+thesis-controller  | INFO:     10.50.20.200:0 - "POST /api/v1/nodes HTTP/1.1" 201 Created
+thesis-controller  | {"event_id": 2, "actor_cn": "pi-test.thesis.local", "action": "auth.failure", "target": "node:pi-01", "result": "rejected", "details": {"reason": "actor not authorized to register this node"}, "event": "audit_event", "level": "info", "timestamp": "2026-05-20T23:10:51.103696Z"}
+thesis-controller  | INFO:     10.50.20.200:0 - "POST /api/v1/nodes HTTP/1.1" 403 Forbidden
+thesis-controller  | {"event_id": 3, "actor_cn": "pi-test.thesis.local", "action": "node.heartbeat", "target": "node:pi-test", "result": "success", "details": {"state": "active", "state_changed": true, "note": "smoke test heartbeat"}, "event": "audit_event", "level": "info", "timestamp": "2026-05-20T23:10:51.140207Z"}
+thesis-controller  | INFO:     10.50.20.200:0 - "POST /api/v1/nodes/pi-test/heartbeat HTTP/1.1" 200 OK
+thesis-controller  | {"actor": "controller.thesis.local", "count": 1, "event": "nodes_listed", "level": "info", "timestamp": "2026-05-20T23:10:51.187667Z"}
+thesis-controller  | INFO:     10.50.20.200:0 - "GET /api/v1/nodes HTTP/1.1" 200 OK
+thesis-controller  | INFO:     10.50.20.200:0 - "GET /api/v1/audit HTTP/1.1" 200 OK
+thesis-controller  | INFO:     127.0.0.1:42422 - "GET /api/v1/health HTTP/1.1" 200 OK

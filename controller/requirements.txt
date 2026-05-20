@@ -1,0 +1,16 @@
+# Core framework
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+pydantic==2.10.4
+pydantic-settings==2.7.1
+
+# Database
+sqlmodel==0.0.22
+aiosqlite==0.20.0
+sqlalchemy[asyncio]==2.0.36
+
+# Structured logging
+structlog==24.4.0
+
+# HTTP client (for future inter-service calls)
+httpx[http2]==0.28.1

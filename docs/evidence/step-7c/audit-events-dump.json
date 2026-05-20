@@ -1,0 +1,29 @@
+[
+  {
+    "actor_cn": "pi-test.thesis.local",
+    "action": "NODE_REGISTER",
+    "target": "node:pi-test",
+    "result": "SUCCESS",
+    "id": 1,
+    "timestamp": "2026-05-20 23:10:51.055557",
+    "details": "{\"role\": \"valid\", \"ip\": \"10.50.30.99\"}"
+  },
+  {
+    "actor_cn": "pi-test.thesis.local",
+    "action": "AUTH_FAILURE",
+    "target": "node:pi-01",
+    "result": "REJECTED",
+    "id": 2,
+    "timestamp": "2026-05-20 23:10:51.101210",
+    "details": "{\"reason\": \"actor not authorized to register this node\"}"
+  },
+  {
+    "actor_cn": "pi-test.thesis.local",
+    "action": "NODE_HEARTBEAT",
+    "target": "node:pi-test",
+    "result": "SUCCESS",
+    "id": 3,
+    "timestamp": "2026-05-20 23:10:51.134667",
+    "details": "{\"state\": \"active\", \"state_changed\": true, \"note\": \"smoke test heartbeat\"}"
+  }
+]

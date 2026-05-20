@@ -33,6 +33,41 @@ services:
       - "thesis.role=pki-ca"
       - "thesis.tier=infrastructure"
 
+  controller:
+    build:
+      context: ./controller
+      dockerfile: Dockerfile
+    image: thesis-controller:0.1.0
+    container_name: thesis-controller
+    hostname: controller.thesis.local
+    restart: unless-stopped
+    # No host port exposure — only reachable through Nginx (defense in depth)
+    expose:
+      - "8000"
+    volumes:
+      - controller-data:/app/data
+    networks:
+      thesis-net:
+        ipv4_address: 172.28.0.30
+        aliases:
+          - controller.thesis.local
+    environment:
+      THESIS_SERVICE_NAME: "thesis-controller"
+      THESIS_SERVICE_VERSION: "0.1.0"
+      THESIS_ENVIRONMENT: "lab"
+      # 4 slashes = absolute path /app/data/thesis.db (3 would be relative
+      # to WORKDIR and resolve to /app/app/data/thesis.db — wrong).
+      THESIS_DATABASE_URL: "sqlite+aiosqlite:////app/data/thesis.db"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health', timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    labels:
+      - "thesis.role=api-controller"
+      - "thesis.tier=application"
+
   nginx:
     image: nginx:1.27-alpine
     container_name: thesis-nginx
@@ -53,6 +88,8 @@ services:
     depends_on:
       step-ca:
         condition: service_healthy
+      controller:
+        condition: service_healthy
     healthcheck:
       # `nginx -t` validates config + cert file accessibility. Busybox wget
       # can't do client certs, and plain HTTPS hits ssl_verify_client.
@@ -71,6 +108,8 @@ volumes:
     external: true   # Already created during init; don't recreate
   nginx-logs:
     name: thesis-nginx-logs
+  controller-data:
+    name: thesis-controller-data
 
 networks:
   thesis-net:
