@@ -79,7 +79,8 @@ services:
     volumes:
       - ./nginx/conf.d:/etc/nginx/conf.d:ro
       - ./nginx/certs:/etc/nginx/certs:ro
-      - nginx-logs:/var/log/nginx
+      # nginx-logs volume removed in 9C-i — access logs now JSON to stdout
+      # (captured by Promtail), no longer file-based.
     networks:
       thesis-net:
         ipv4_address: 172.28.0.20
@@ -237,12 +238,69 @@ services:
       - "thesis.role=log-shipper"
       - "thesis.tier=observability"
 
+  # ── Grafana (Step 9C-i) ──
+
+  grafana:
+    image: grafana/grafana:11.4.0
+    container_name: thesis-grafana
+    hostname: grafana.thesis.local
+    restart: unless-stopped
+    expose:
+      - "3000"
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana-data:/var/lib/grafana
+    environment:
+      # Behind Nginx subpath /grafana/
+      GF_SERVER_ROOT_URL: "https://controller.thesis.local/grafana/"
+      GF_SERVER_SERVE_FROM_SUB_PATH: "true"
+
+      # Security
+      GF_SECURITY_ADMIN_USER: "admin"
+      GF_SECURITY_ADMIN_PASSWORD__FILE: "/run/secrets/grafana_admin_password"
+      GF_SECURITY_DISABLE_GRAVATAR: "true"
+      GF_SECURITY_COOKIE_SECURE: "true"
+      GF_SECURITY_STRICT_TRANSPORT_SECURITY: "true"
+
+      # Disable telemetry/external calls (lab is air-gapped capable)
+      GF_ANALYTICS_REPORTING_ENABLED: "false"
+      GF_ANALYTICS_CHECK_FOR_UPDATES: "false"
+      GF_ANALYTICS_CHECK_FOR_PLUGIN_UPDATES: "false"
+
+      # Disable signup, anonymous access
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_AUTH_ANONYMOUS_ENABLED: "false"
+
+      # Log to stdout for Promtail capture
+      GF_LOG_MODE: "console"
+      GF_LOG_LEVEL: "info"
+    secrets:
+      - grafana_admin_password
+    networks:
+      thesis-net:
+        ipv4_address: 172.28.0.60
+        aliases:
+          - grafana.thesis.local
+    depends_on:
+      prometheus:
+        condition: service_healthy
+      loki:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget --spider -q http://localhost:3000/api/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    labels:
+      - "thesis.role=dashboards"
+      - "thesis.tier=observability"
+
 volumes:
   step-ca-data:
     name: thesis-step-ca-data
     external: true   # Already created during init; don't recreate
-  nginx-logs:
-    name: thesis-nginx-logs
   controller-data:
     name: thesis-controller-data
   prometheus-data:
@@ -251,6 +309,8 @@ volumes:
     name: thesis-loki-data
   promtail-positions:
     name: thesis-promtail-positions
+  grafana-data:
+    name: thesis-grafana-data
 
 networks:
   thesis-net:
@@ -260,3 +320,7 @@ networks:
       config:
         - subnet: 172.28.0.0/24
           gateway: 172.28.0.1
+
+secrets:
+  grafana_admin_password:
+    file: ./monitoring/grafana/admin-password.txt

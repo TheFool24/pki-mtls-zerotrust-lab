@@ -11,17 +11,14 @@ clients:
   - url: http://loki:3100/loki/api/v1/push
 
 scrape_configs:
-  # ── Docker container logs ──
   - job_name: docker
     docker_sd_configs:
       - host: unix:///var/run/docker.sock
         refresh_interval: 15s
-        # Only scrape thesis lab containers
         filters:
           - name: label
             values: ["thesis.role"]
 
-    # Relabel — promote Docker labels to log stream labels
     relabel_configs:
       - source_labels: ["__meta_docker_container_name"]
         regex: "/(.+)"
@@ -30,17 +27,11 @@ scrape_configs:
         target_label: role
       - source_labels: ["__meta_docker_container_label_thesis_tier"]
         target_label: tier
-      # Set the static "job" label for all docker logs
       - target_label: job
         replacement: docker
 
     pipeline_stages:
-      # Stage 1: Docker wraps each log line in JSON: {"log":"...","stream":"stdout","time":"..."}
-      # Promtail docker_sd already unwraps this by default in newer versions,
-      # but we make it explicit for clarity.
-
-      # Stage 2: Parse structlog JSON (only for thesis-controller; other containers
-      # produce plaintext logs and would fail JSON parsing)
+      # ── FastAPI controller (structlog JSON) ──
       - match:
           selector: '{container="thesis-controller"}'
           stages:
@@ -52,23 +43,35 @@ scrape_configs:
                   audit_action: action
                   audit_result: result
                   actor_cn: actor_cn
-            # Promote select fields to labels (bounded cardinality only!)
             - labels:
                 level:
                 event:
                 audit_action:
                 audit_result:
-            # Use timestamp from structlog rather than Docker's capture time
             - timestamp:
                 source: timestamp
                 format: RFC3339Nano
 
-      # Stage 3: Nginx access logs — extract status code for filtering
+      # ── Nginx mTLS proxy (JSON access logs) ──
       - match:
           selector: '{container="thesis-nginx"}'
           stages:
-            - regex:
-                expression: '^(?P<remote_addr>\S+) - (?P<remote_user>\S+) \[(?P<time_local>[^\]]+)\] "(?P<method>\S+) (?P<request>\S+) (?P<protocol>\S+)" (?P<status>\d+)'
+            - json:
+                expressions:
+                  event: event
+                  status: status
+                  method: method
+                  ssl_protocol: ssl_protocol
+                  ssl_cipher: ssl_cipher
+                  ssl_client_verify: ssl_client_verify
+                  upstream_status: upstream_status
+                  timestamp: timestamp
             - labels:
-                method:
+                event:
                 status:
+                method:
+                ssl_protocol:
+                ssl_client_verify:
+            - timestamp:
+                source: timestamp
+                format: RFC3339
