@@ -186,6 +186,57 @@ services:
       - "thesis.role=container-metrics"
       - "thesis.tier=observability"
 
+  # ── Logs aggregation (Step 9B) ──
+
+  loki:
+    image: grafana/loki:3.3.2
+    container_name: thesis-loki
+    hostname: loki.thesis.local
+    restart: unless-stopped
+    expose:
+      - "3100"
+    command: ["-config.file=/etc/loki/loki-config.yml"]
+    volumes:
+      - ./monitoring/loki:/etc/loki:ro
+      - loki-data:/loki
+    networks:
+      thesis-net:
+        ipv4_address: 172.28.0.50
+        aliases:
+          - loki.thesis.local
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3100/ready"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    labels:
+      - "thesis.role=log-tsdb"
+      - "thesis.tier=observability"
+
+  promtail:
+    image: grafana/promtail:3.3.2
+    container_name: thesis-promtail
+    hostname: promtail.thesis.local
+    restart: unless-stopped
+    command: ["-config.file=/etc/promtail/promtail-config.yml"]
+    volumes:
+      - ./monitoring/promtail:/etc/promtail:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - promtail-positions:/tmp
+    networks:
+      thesis-net:
+        ipv4_address: 172.28.0.51
+        aliases:
+          - promtail.thesis.local
+    depends_on:
+      loki:
+        condition: service_healthy
+    labels:
+      - "thesis.role=log-shipper"
+      - "thesis.tier=observability"
+
 volumes:
   step-ca-data:
     name: thesis-step-ca-data
@@ -196,6 +247,10 @@ volumes:
     name: thesis-controller-data
   prometheus-data:
     name: thesis-prometheus-data
+  loki-data:
+    name: thesis-loki-data
+  promtail-positions:
+    name: thesis-promtail-positions
 
 networks:
   thesis-net:
