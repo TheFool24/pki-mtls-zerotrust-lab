@@ -96,9 +96,55 @@ PromQL — mTLS failure rate: `rate(thesis_mtls_auth_total{result!="success"}[5m
 LogQL — rejections: `{container="thesis-controller", audit_result="rejected"}`
 LogQL — nginx 4xx/5xx: `{container="thesis-nginx"} |~ " (4\\d\\d|5\\d\\d) "`
 
-## Pending for Step 9C
+## Step 9C — Grafana (done: 9C-i + 9C-ii.1)
 
-- Grafana service in compose
-- Nginx `/grafana/` location with mTLS gating + Grafana root_url subpath
-- Provisioned datasources (Prometheus + Loki) and dashboards
-- Three dashboards: Lab Overview, PKI & mTLS, Audit Trail
+### 9C-i — Grafana behind mTLS
+
+- `grafana/grafana:11.4.0` at 172.28.0.60, proxied via nginx `location /grafana/`.
+- **nginx proxy_pass MUST have no trailing slash** (`http://grafana:3000;`).
+  Grafana runs `serve_from_sub_path=true` and expects the `/grafana/` prefix;
+  a trailing slash strips it → infinite 301 loop. (Confirmed via Location header;
+  the protocol-mismatch theory was a red herring.)
+- Admin password via Docker file secret; **chmod 644** required because Compose
+  file-secrets bind-mount the source as-is and Grafana runs as uid 472
+  (uid/mode secret options are Swarm-only). Still gitignored.
+- Datasources auto-provisioned (Prometheus default + Loki).
+- nginx access logs converted to JSON (`log_format mtls_json`) → /dev/stdout;
+  Promtail promotes `ssl_protocol`, `ssl_client_verify`, `status`, `method` to
+  Loki labels. Closed the 9B file-based-logs gap.
+- **Air-gap caveat:** Grafana 11.4 auto-installs `grafana-lokiexplore-app` by
+  phoning grafana.com on first boot. Disable plugin preinstall or pre-seed the
+  volume before the air-gapped defense.
+
+### 9C-ii.1 — Lab Overview dashboard
+
+7 panels: service health (4 jobs), host CPU, host memory, host disk (root fs),
+host network I/O, controller request rate by endpoint, controller latency p50/p95.
+
+**cAdvisor container-attribution limitation (important finding):**
+The original plan's container CPU/memory panels used
+`container_*{name=~"thesis-.*"}` — these return **no data** here. Root cause:
+Docker uses the **containerd-snapshotter** storage driver
+(`overlayfs / io.containerd.snapshotter.v1`), and cAdvisor's Docker integration
+expects the classic `overlay2` layerdb layout. cAdvisor logs:
+`Failed to create existing container: /system.slice/docker-<id>.scope: failed to
+identify the read-write layer ID ... layerdb/mounts/<id>/mount-id: no such file`.
+Result: cAdvisor emits host/system-slice cgroup metrics but **no per-Docker-
+container series** (no `name` label at all).
+
+Decision: keep cAdvisor for host/cgroup/machine metrics; replaced the two
+container-by-name panels with node-exporter panels (disk usage, network I/O).
+Real per-container CPU/mem would require switching Docker to the `overlay2`
+storage driver (recreates the whole stack — not worth it for the lab) or
+pointing cAdvisor at containerd directly. Documented as a Гл. 3 implementation
+finding.
+
+**Metric-name corrections applied vs plan:**
+- HTTP request counter is `http_requests_total{handler,method,status}`
+  (status values like `2xx`, not a `status_code` label). Panel 6 uses `handler`.
+- Latency histogram `http_request_duration_seconds_bucket{handler,le}` — works.
+
+### Pending for 9C-ii (next)
+
+- Dashboard 2: PKI & mTLS Security (custom thesis_* metrics + nginx ssl labels)
+- Dashboard 3: Audit Trail Explorer (Loki-based log exploration)
