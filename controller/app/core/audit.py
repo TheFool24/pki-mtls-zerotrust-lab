@@ -1,14 +1,10 @@
-"""Audit logging helper — double-write to DB and structured log.
-
-Every state-changing or security-relevant action MUST go through this module.
-Ensures audit trail consistency between persistent storage (queryable via API)
-and stdout JSON logs (Loki ingestion in Step 8/9).
-"""
+"""Audit logging helper — DB + structured log + Prometheus counter."""
 from typing import Any
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.logging import get_logger
+from app.core.metrics import audit_events_total
 from app.models.audit import AuditAction, AuditEvent, AuditResult
 
 log = get_logger("audit")
@@ -23,7 +19,7 @@ async def record_event(
     result: AuditResult = AuditResult.SUCCESS,
     details: dict[str, Any] | None = None,
 ) -> AuditEvent:
-    """Record an audit event to DB and stdout simultaneously.
+    """Triple-write: DB row + structlog line + Prometheus counter increment.
 
     The DB write is awaited but commit is NOT performed here — caller must
     commit (or rollback) as part of the wrapping transaction.
@@ -38,7 +34,7 @@ async def record_event(
     session.add(event)
     await session.flush()  # populate event.id and event.timestamp
 
-    # Mirror to structured log — for Loki / Grafana
+    # Structured log
     log.info(
         "audit_event",
         event_id=event.id,
@@ -48,5 +44,8 @@ async def record_event(
         result=result.value,
         details=details,
     )
+
+    # Prometheus counter
+    audit_events_total.labels(action=action.value, result=result.value).inc()
 
     return event

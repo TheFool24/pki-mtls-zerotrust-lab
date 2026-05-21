@@ -1,16 +1,19 @@
-"""FastAPI application entry point.
+"""FastAPI application entry point with Prometheus instrumentation.
 
 Service: thesis-controller
 Role: Master controller for PKI/mTLS/Zero Trust lab
 Author: jojo (ВУТП, 2026)
 """
+import asyncio
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from prometheus_fastapi_instrumentator import Instrumentator
 
 from app.api import audit, health, nodes, whoami
 from app.core.config import settings
 from app.core.logging import configure_logging, get_logger
+from app.core.metrics_hooks import periodic_gauge_refresh
 from app.db.session import init_db
 
 
@@ -25,12 +28,19 @@ async def lifespan(app: FastAPI):
         version=settings.service_version,
         environment=settings.environment,
     )
-
-    # Initialize DB (creates tables + sets pragmas)
     await init_db()
 
+    # Background task: refresh gauges every 30s
+    gauge_task = asyncio.create_task(periodic_gauge_refresh(interval_seconds=30))
+
     yield
+
     log.info("controller_stopping")
+    gauge_task.cancel()
+    try:
+        await gauge_task
+    except asyncio.CancelledError:
+        pass
 
 
 app = FastAPI(
@@ -41,6 +51,16 @@ app = FastAPI(
     docs_url="/docs",
     redoc_url=None,
 )
+
+# Prometheus instrumentation — automatic HTTP metrics + /metrics endpoint.
+# NOTE: /metrics is exposed WITHOUT mTLS at controller level. Nginx does not
+# proxy /metrics, so it is reachable only from inside the Docker network
+# (Prometheus scrapes controller:8000/metrics directly) — network-ACL approach.
+Instrumentator(
+    should_group_status_codes=True,
+    should_ignore_untemplated=True,
+    excluded_handlers=["/metrics", "/api/v1/health"],
+).instrument(app).expose(app, endpoint="/metrics", include_in_schema=False)
 
 # API v1 routes
 app.include_router(health.router, prefix="/api/v1")

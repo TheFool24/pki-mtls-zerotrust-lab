@@ -1,0 +1,45 @@
+# Prometheus configuration — thesis lab observability
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    monitor: thesis-lab
+    environment: lab
+
+scrape_configs:
+  # Prometheus itself
+  - job_name: prometheus
+    static_configs:
+      - targets: ["localhost:9090"]
+    metrics_path: /metrics
+
+  # FastAPI controller — both HTTP metrics + business metrics
+  - job_name: thesis-controller
+    static_configs:
+      - targets: ["controller:8000"]
+        labels:
+          service: controller
+          tier: application
+    metrics_path: /metrics
+
+  # Node exporter — host-level metrics (CPU, mem, disk, net)
+  - job_name: node
+    static_configs:
+      - targets: ["node-exporter:9100"]
+        labels:
+          host: master-lab
+          tier: infrastructure
+
+  # cAdvisor — per-container resource usage
+  - job_name: cadvisor
+    static_configs:
+      - targets: ["cadvisor:8080"]
+        labels:
+          tier: infrastructure
+    metrics_path: /metrics
+
+  # NOTE: step-ca does NOT expose a Prometheus metrics endpoint. Its /health
+  # returns JSON, which Prometheus can't parse as exposition format (the target
+  # would show as DOWN). step-ca liveness is observed via its Docker healthcheck
+  # and cAdvisor container metrics instead. If dedicated up/down probing is
+  # wanted later, add a blackbox-exporter job (proper tool for HTTP health probes).

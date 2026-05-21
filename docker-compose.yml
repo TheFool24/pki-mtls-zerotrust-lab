@@ -102,6 +102,90 @@ services:
       - "thesis.role=mtls-proxy"
       - "thesis.tier=edge"
 
+  # ── Monitoring stack (Step 9A) ──
+
+  prometheus:
+    image: prom/prometheus:v2.55.1
+    container_name: thesis-prometheus
+    hostname: prometheus.thesis.local
+    restart: unless-stopped
+    expose:
+      - "9090"
+    volumes:
+      - ./monitoring/prometheus:/etc/prometheus:ro
+      - prometheus-data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--storage.tsdb.retention.time=30d"
+      - "--web.console.libraries=/usr/share/prometheus/console_libraries"
+      - "--web.console.templates=/usr/share/prometheus/consoles"
+    networks:
+      thesis-net:
+        ipv4_address: 172.28.0.40
+        aliases:
+          - prometheus.thesis.local
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:9090/-/healthy"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    labels:
+      - "thesis.role=metrics-tsdb"
+      - "thesis.tier=observability"
+
+  node-exporter:
+    image: prom/node-exporter:v1.8.2
+    container_name: thesis-node-exporter
+    hostname: node-exporter.thesis.local
+    restart: unless-stopped
+    expose:
+      - "9100"
+    command:
+      - "--path.procfs=/host/proc"
+      - "--path.sysfs=/host/sys"
+      - "--path.rootfs=/host/rootfs"
+      - "--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)"
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/host/rootfs:ro
+    networks:
+      thesis-net:
+        ipv4_address: 172.28.0.41
+        aliases:
+          - node-exporter.thesis.local
+    pid: host
+    labels:
+      - "thesis.role=host-metrics"
+      - "thesis.tier=observability"
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.49.1
+    container_name: thesis-cadvisor
+    hostname: cadvisor.thesis.local
+    restart: unless-stopped
+    expose:
+      - "8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker:/var/lib/docker:ro
+      - /dev/disk:/dev/disk:ro
+    privileged: true
+    devices:
+      - /dev/kmsg
+    networks:
+      thesis-net:
+        ipv4_address: 172.28.0.42
+        aliases:
+          - cadvisor.thesis.local
+    labels:
+      - "thesis.role=container-metrics"
+      - "thesis.tier=observability"
+
 volumes:
   step-ca-data:
     name: thesis-step-ca-data
@@ -110,6 +194,8 @@ volumes:
     name: thesis-nginx-logs
   controller-data:
     name: thesis-controller-data
+  prometheus-data:
+    name: thesis-prometheus-data
 
 networks:
   thesis-net:
