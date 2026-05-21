@@ -4,6 +4,10 @@ apiVersion: 1
 datasources:
   - name: Prometheus
     type: prometheus
+    # Explicit, stable UID so provisioned dashboards can reference it reliably.
+    # Without this, Grafana assigns a random UID and dashboard panels that
+    # reference uid="prometheus" show "No data".
+    uid: prometheus
     access: proxy
     url: http://prometheus:9090
     isDefault: true
@@ -15,6 +19,7 @@ datasources:
 
   - name: Loki
     type: loki
+    uid: loki
     access: proxy
     url: http://loki:3100
     editable: false
