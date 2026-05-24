@@ -1,0 +1,22 @@
+[
+  {
+    "job": "cadvisor",
+    "health": "up",
+    "lastError": ""
+  },
+  {
+    "job": "node",
+    "health": "up",
+    "lastError": ""
+  },
+  {
+    "job": "prometheus",
+    "health": "up",
+    "lastError": ""
+  },
+  {
+    "job": "thesis-controller",
+    "health": "up",
+    "lastError": ""
+  }
+]

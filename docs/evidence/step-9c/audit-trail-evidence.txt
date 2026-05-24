@@ -1,0 +1,23 @@
+# Audit Trail — evidence snapshot
+# captured: 2026-05-24T12:14:48.565933+00:00
+
+## Event breakdown (action x result, 24h)
+  node.heartbeat       success    16
+  auth.failure         rejected   11
+  node.register        success    2
+  node.register        rejected   1
+
+## Activity by actor (24h)
+  pi-test.thesis.local                     12
+  controller.thesis.local                  3
+
+## Sample REJECTED events (lateral-movement defense, newest first)
+## Sample REJECTED events from DB (lateral-movement defense, newest first)
+  2026-05-24 12:13:09.271347  actor=controller.thesis.local action=NODE_REGISTER target=node:pi-test reason=node already registered
+  2026-05-24 12:12:31.157463  actor=pi-test.thesis.local action=AUTH_FAILURE target=node:pi-fake-6 reason=actor not authorized to register this node
+  2026-05-24 12:12:31.053286  actor=pi-test.thesis.local action=AUTH_FAILURE target=node:pi-fake-5 reason=actor not authorized to register this node
+  2026-05-24 12:12:30.997259  actor=pi-test.thesis.local action=AUTH_FAILURE target=node:pi-fake-4 reason=actor not authorized to register this node
+  2026-05-24 12:12:30.952414  actor=pi-test.thesis.local action=AUTH_FAILURE target=node:pi-fake-3 reason=actor not authorized to register this node
+  2026-05-24 12:12:30.908175  actor=pi-test.thesis.local action=AUTH_FAILURE target=node:pi-fake-2 reason=actor not authorized to register this node
+  2026-05-24 12:12:30.858031  actor=pi-test.thesis.local action=AUTH_FAILURE target=node:pi-fake-1 reason=actor not authorized to register this node
+  2026-05-24 12:11:01.281184  actor=pi-test.thesis.local action=AUTH_FAILURE target=node:pi-fake-5 reason=actor not authorized to register this node

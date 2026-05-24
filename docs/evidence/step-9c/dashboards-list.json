@@ -1,0 +1,17 @@
+[
+  {
+    "title": "Thesis Lab — Audit Trail Explorer",
+    "uid": "thesis-audit-trail",
+    "folderTitle": "Thesis Lab"
+  },
+  {
+    "title": "Thesis Lab — Overview",
+    "uid": "thesis-overview",
+    "folderTitle": "Thesis Lab"
+  },
+  {
+    "title": "Thesis Lab — PKI & mTLS Security",
+    "uid": "thesis-pki-mtls",
+    "folderTitle": "Thesis Lab"
+  }
+]

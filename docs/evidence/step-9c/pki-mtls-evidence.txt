@@ -1,0 +1,20 @@
+# PKI & mTLS Security — evidence snapshot
+# captured: 2026-05-24T12:14:37.389159+00:00
+
+## TLS 1.3 compliance (ИС-4): share of TLS handshakes that are TLSv1.3
+  TLSv1.3 handshakes: 462 / 462 = 100.0%
+
+## TLS protocol distribution (24h)
+  TLSv1.3: 462
+
+## Cipher suite distribution (24h)
+  TLS_AES_128_GCM_SHA256: 410
+  TLS_AES_256_GCM_SHA384: 52
+
+## Active client identities (verified, 24h)
+  CN=controller.thesis.local               verify=SUCCESS  requests=19
+  CN=operator.thesis.local                 verify=SUCCESS  requests=413
+  CN=pi-test.thesis.local                  verify=SUCCESS  requests=30
+
+## mTLS auth outcomes (thesis_mtls_auth_total counter)
+  success: 49

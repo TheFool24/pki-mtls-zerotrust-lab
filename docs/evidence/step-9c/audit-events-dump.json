@@ -1,0 +1,488 @@
+[
+  {
+    "actor_cn": "pi-test.thesis.local",
+    "action": "NODE_REGISTER",
+    "target": "node:pi-test",
+    "result": "SUCCESS",
+    "id": 1,
+    "timestamp": "2026-05-20 23:10:51.055557",
+    "details": "{\"role\": \"valid\", \"ip\": \"10.50.30.99\"}"
+  },
+  {
+    "actor_cn": "pi-test.thesis.local",
+    "action": "AUTH_FAILURE",
+    "target": "node:pi-01",
+    "result": "REJECTED",
+    "id": 2,
+    "timestamp": "2026-05-20 23:10:51.101210",
+    "details": "{\"reason\": \"actor not authorized to register this node\"}"
+  },
+  {
+    "actor_cn": "pi-test.thesis.local",
+    "action": "NODE_HEARTBEAT",
+    "target": "node:pi-test",
+    "result": "SUCCESS",
+    "id": 3,
+    "timestamp": "2026-05-20 23:10:51.134667",
+    "details": "{\"state\": \"active\", \"state_changed\": true, \"note\": \"smoke test heartbeat\"}"
+  },
+  {
+    "actor_cn": "pi-test.thesis.local",
+    "action": "NODE_HEARTBEAT",
+    "target": "node:pi-test",
+    "result": "SUCCESS",
+    "id": 4,
+    "timestamp": "2026-05-21 01:31:26.531347",
+    "details": "{\"state\": \"active\", \"state_changed\": false, \"note\": \"9B verification heartbeat\"}"
+  },
+  {
+    "actor_cn": "pi-test.thesis.local",
+    "action": "NODE_HEARTBEAT",
+    "target": "node:pi-test",
+    "result": "SUCCESS",
+    "id": 5,
+    "timestamp": "2026-05-22 11:34:52.443342",
+    "details": "{\"state\": \"active\", \"state_changed\": false, \"note\": \"dashboard 2 data gen\"}"
+  },
+  {
+    "actor_cn": "pi-test.thesis.local",
+    "action": "NODE_HEARTBEAT",
+    "target": "node:pi-test",
+    "result": "SUCCESS",
+    "id": 6,
+    "timestamp": "2026-05-22 11:34:52.540305",
+    "details": "{\"state\": \"active\", \"state_changed\": false, \"note\": \"dashboard 2 data gen\"}"
+  },
+  {
+    "actor_cn": "pi-test.thesis.local",
+    "action": "NODE_HEARTBEAT",
+    "target": "node:pi-test",
+    "result": "SUCCESS",
+    "id": 7,
+    "timestamp": "2026-05-22 11:34:52.630918",
+    "details": "{\"state\": \"active\", \"state_changed\": false, \"note\": \"dashboard 2 data gen\"}"
+  },
+  {
+    "actor_cn": "pi-test.thesis.local",
+    "action": "NODE_HEARTBEAT",
+    "target": "node:pi-test",
+    "result": "SUCCESS",
+    "id": 8,
+    "timestamp": "2026-05-22 11:34:52.722949",
+    "details": "{\"state\": \"active\", \"state_changed\": false, \"note\": \"dashboard 2 data gen\"}"
+  },
+  {
+    "actor_cn": "pi-test.thesis.local",
+    "action": "NODE_HEARTBEAT",
+    "target": "node:pi-test",
+    "result": "SUCCESS",
+    "id": 9,
+    "timestamp": "2026-05-22 11:34:52.832879",
+    "details": "{\"state\": \"active\", \"state_changed\": false, \"note\": \"dashboard 2 data gen\"}"
+  },
+  {
+    "actor_cn": "pi-test.thesis.local",
+    "action": "NODE_HEARTBEAT",
+    "target": "node:pi-test",
+    "result": "SUCCESS",
+    "id": 10,
+    "timestamp": "2026-05-22 11:34:52.940216",
+    "details": "{\"state\": \"active\", \"state_changed\": false, \"note\": \"dashboard 2 data gen\"}"
+  },
+  {
+    "actor_cn": "pi-test.thesis.local",
+    "action": "NODE_HEARTBEAT",
+    "target": "node:pi-test",
+    "result": "SUCCESS",
+    "id": 11,
+    "timestamp": "2026-05-22 11:34:53.037241",
+    "details": "{\"state\": \"active\", \"state_changed\": false, \"note\": \"dashboard 2 data gen\"}"
+  },
+  {
+    "actor_cn": "pi-test.thesis.local",
+    "action": "NODE_HEARTBEAT",
+    "target": "node:pi-test",
+    "result": "SUCCESS",
+    "id": 12,
+    "timestamp": "2026-05-22 11:34:53.138939",
+    "details": "{\"state\": \"active\", \"state_changed\": false, \"note\": \"dashboard 2 data gen\"}"
+  },
+  {
+    "actor_cn": "pi-test.thesis.local",
+    "action": "NODE_HEARTBEAT",
+    "target": "node:pi-test",
+    "result": "SUCCESS",
+    "id": 13,
+    "timestamp": "2026-05-22 11:34:53.232587",
+    "details": "{\"state\": \"active\", \"state_changed\": false, \"note\": \"dashboard 2 data gen\"}"
+  },
+  {
+    "actor_cn": "pi-test.thesis.local",
+    "action": "NODE_HEARTBEAT",
+    "target": "node:pi-test",
+    "result": "SUCCESS",
+    "id": 14,
+    "timestamp": "2026-05-22 11:34:53.328029",
+    "details": "{\"state\": \"active\", \"state_changed\": false, \"note\": \"dashboard 2 data gen\"}"
+  },
+  {
+    "actor_cn": "pi-test.thesis.local",
+    "action": "NODE_HEARTBEAT",
+    "target": "node:pi-test",
+    "result": "SUCCESS",
+    "id": 15,
+    "timestamp": "2026-05-22 11:34:53.423583",
+    "details": "{\"state\": \"active\", \"state_changed\": false, \"note\": \"dashboard 2 data gen\"}"
+  },
+  {
+    "actor_cn": "pi-test.thesis.local",
+    "action": "NODE_HEARTBEAT",
+    "target": "node:pi-test",
+    "result": "SUCCESS",
+    "id": 16,
+    "timestamp": "2026-05-22 11:34:53.505227",
+    "details": "{\"state\": \"active\", \"state_changed\": false, \"note\": \"dashboard 2 data gen\"}"
+  },
+  {
+    "actor_cn": "pi-test.thesis.local",
+    "action": "NODE_HEARTBEAT",
+    "target": "node:pi-test",
+    "result": "SUCCESS",
+    "id": 17,
+    "timestamp": "2026-05-22 11:34:53.591298",
+    "details": "{\"state\": \"active\", \"state_changed\": false, \"note\": \"dashboard 2 data gen\"}"
+  },
+  {
+    "actor_cn": "pi-test.thesis.local",
+    "action": "NODE_HEARTBEAT",
+    "target": "node:pi-test",
+    "result": "SUCCESS",
+    "id": 18,
+    "timestamp": "2026-05-22 11:34:53.697357",
+    "details": "{\"state\": \"active\", \"state_changed\": false, \"note\": \"dashboard 2 data gen\"}"
+  },
+  {
+    "actor_cn": "pi-test.thesis.local",
+    "action": "NODE_HEARTBEAT",
+    "target": "node:pi-test",
+    "result": "SUCCESS",
+    "id": 19,
+    "timestamp": "2026-05-22 11:34:53.790017",
+    "details": "{\"state\": \"active\", \"state_changed\": false, \"note\": \"dashboard 2 data gen\"}"
+  },
+  {
+    "actor_cn": "pi-test.thesis.local",
+    "action": "NODE_HEARTBEAT",
+    "target": "node:pi-test",
+    "result": "SUCCESS",
+    "id": 20,
+    "timestamp": "2026-05-22 11:34:53.882685",
+    "details": "{\"state\": \"active\", \"state_changed\": false, \"note\": \"dashboard 2 data gen\"}"
+  },
+  {
+    "actor_cn": "pi-test.thesis.local",
+    "action": "NODE_HEARTBEAT",
+    "target": "node:pi-test",
+    "result": "SUCCESS",
+    "id": 21,
+    "timestamp": "2026-05-22 11:34:53.978141",
+    "details": "{\"state\": \"active\", \"state_changed\": false, \"note\": \"dashboard 2 data gen\"}"
+  },
+  {
+    "actor_cn": "pi-test.thesis.local",
+    "action": "NODE_HEARTBEAT",
+    "target": "node:pi-test",
+    "result": "SUCCESS",
+    "id": 22,
+    "timestamp": "2026-05-22 11:34:54.063434",
+    "details": "{\"state\": \"active\", \"state_changed\": false, \"note\": \"dashboard 2 data gen\"}"
+  },
+  {
+    "actor_cn": "pi-test.thesis.local",
+    "action": "NODE_HEARTBEAT",
+    "target": "node:pi-test",
+    "result": "SUCCESS",
+    "id": 23,
+    "timestamp": "2026-05-22 11:34:54.168725",
+    "details": "{\"state\": \"active\", \"state_changed\": false, \"note\": \"dashboard 2 data gen\"}"
+  },
+  {
+    "actor_cn": "pi-test.thesis.local",
+    "action": "NODE_HEARTBEAT",
+    "target": "node:pi-test",
+    "result": "SUCCESS",
+    "id": 24,
+    "timestamp": "2026-05-22 11:34:54.284422",
+    "details": "{\"state\": \"active\", \"state_changed\": false, \"note\": \"dashboard 2 data gen\"}"
+  },
+  {
+    "actor_cn": "pi-test.thesis.local",
+    "action": "NODE_HEARTBEAT",
+    "target": "node:pi-test",
+    "result": "SUCCESS",
+    "id": 25,
+    "timestamp": "2026-05-24 12:11:00.546841",
+    "details": "{\"state\": \"active\", \"state_changed\": false, \"note\": \"audit demo\"}"
+  },
+  {
+    "actor_cn": "pi-test.thesis.local",
+    "action": "NODE_HEARTBEAT",
+    "target": "node:pi-test",
+    "result": "SUCCESS",
+    "id": 26,
+    "timestamp": "2026-05-24 12:11:00.636242",
+    "details": "{\"state\": \"active\", \"state_changed\": false, \"note\": \"audit demo\"}"
+  },
+  {
+    "actor_cn": "pi-test.thesis.local",
+    "action": "NODE_HEARTBEAT",
+    "target": "node:pi-test",
+    "result": "SUCCESS",
+    "id": 27,
+    "timestamp": "2026-05-24 12:11:00.693586",
+    "details": "{\"state\": \"active\", \"state_changed\": false, \"note\": \"audit demo\"}"
+  },
+  {
+    "actor_cn": "pi-test.thesis.local",
+    "action": "NODE_HEARTBEAT",
+    "target": "node:pi-test",
+    "result": "SUCCESS",
+    "id": 28,
+    "timestamp": "2026-05-24 12:11:00.752615",
+    "details": "{\"state\": \"active\", \"state_changed\": false, \"note\": \"audit demo\"}"
+  },
+  {
+    "actor_cn": "pi-test.thesis.local",
+    "action": "NODE_HEARTBEAT",
+    "target": "node:pi-test",
+    "result": "SUCCESS",
+    "id": 29,
+    "timestamp": "2026-05-24 12:11:00.811027",
+    "details": "{\"state\": \"active\", \"state_changed\": false, \"note\": \"audit demo\"}"
+  },
+  {
+    "actor_cn": "pi-test.thesis.local",
+    "action": "NODE_HEARTBEAT",
+    "target": "node:pi-test",
+    "result": "SUCCESS",
+    "id": 30,
+    "timestamp": "2026-05-24 12:11:00.865967",
+    "details": "{\"state\": \"active\", \"state_changed\": false, \"note\": \"audit demo\"}"
+  },
+  {
+    "actor_cn": "pi-test.thesis.local",
+    "action": "NODE_HEARTBEAT",
+    "target": "node:pi-test",
+    "result": "SUCCESS",
+    "id": 31,
+    "timestamp": "2026-05-24 12:11:00.920150",
+    "details": "{\"state\": \"active\", \"state_changed\": false, \"note\": \"audit demo\"}"
+  },
+  {
+    "actor_cn": "pi-test.thesis.local",
+    "action": "NODE_HEARTBEAT",
+    "target": "node:pi-test",
+    "result": "SUCCESS",
+    "id": 32,
+    "timestamp": "2026-05-24 12:11:00.974269",
+    "details": "{\"state\": \"active\", \"state_changed\": false, \"note\": \"audit demo\"}"
+  },
+  {
+    "actor_cn": "pi-test.thesis.local",
+    "action": "NODE_HEARTBEAT",
+    "target": "node:pi-test",
+    "result": "SUCCESS",
+    "id": 33,
+    "timestamp": "2026-05-24 12:11:01.029270",
+    "details": "{\"state\": \"active\", \"state_changed\": false, \"note\": \"audit demo\"}"
+  },
+  {
+    "actor_cn": "pi-test.thesis.local",
+    "action": "NODE_HEARTBEAT",
+    "target": "node:pi-test",
+    "result": "SUCCESS",
+    "id": 34,
+    "timestamp": "2026-05-24 12:11:01.090580",
+    "details": "{\"state\": \"active\", \"state_changed\": false, \"note\": \"audit demo\"}"
+  },
+  {
+    "actor_cn": "pi-test.thesis.local",
+    "action": "AUTH_FAILURE",
+    "target": "node:pi-fake-1",
+    "result": "REJECTED",
+    "id": 35,
+    "timestamp": "2026-05-24 12:11:01.132300",
+    "details": "{\"reason\": \"actor not authorized to register this node\"}"
+  },
+  {
+    "actor_cn": "pi-test.thesis.local",
+    "action": "AUTH_FAILURE",
+    "target": "node:pi-fake-2",
+    "result": "REJECTED",
+    "id": 36,
+    "timestamp": "2026-05-24 12:11:01.173343",
+    "details": "{\"reason\": \"actor not authorized to register this node\"}"
+  },
+  {
+    "actor_cn": "pi-test.thesis.local",
+    "action": "AUTH_FAILURE",
+    "target": "node:pi-fake-3",
+    "result": "REJECTED",
+    "id": 37,
+    "timestamp": "2026-05-24 12:11:01.207921",
+    "details": "{\"reason\": \"actor not authorized to register this node\"}"
+  },
+  {
+    "actor_cn": "pi-test.thesis.local",
+    "action": "AUTH_FAILURE",
+    "target": "node:pi-fake-4",
+    "result": "REJECTED",
+    "id": 38,
+    "timestamp": "2026-05-24 12:11:01.245791",
+    "details": "{\"reason\": \"actor not authorized to register this node\"}"
+  },
+  {
+    "actor_cn": "pi-test.thesis.local",
+    "action": "AUTH_FAILURE",
+    "target": "node:pi-fake-5",
+    "result": "REJECTED",
+    "id": 39,
+    "timestamp": "2026-05-24 12:11:01.281184",
+    "details": "{\"reason\": \"actor not authorized to register this node\"}"
+  },
+  {
+    "actor_cn": "pi-test.thesis.local",
+    "action": "NODE_HEARTBEAT",
+    "target": "node:pi-test",
+    "result": "SUCCESS",
+    "id": 40,
+    "timestamp": "2026-05-24 12:12:30.829135",
+    "details": "{\"state\": \"active\", \"state_changed\": false, \"note\": \"actor label test\"}"
+  },
+  {
+    "actor_cn": "pi-test.thesis.local",
+    "action": "AUTH_FAILURE",
+    "target": "node:pi-fake-1",
+    "result": "REJECTED",
+    "id": 41,
+    "timestamp": "2026-05-24 12:12:30.858031",
+    "details": "{\"reason\": \"actor not authorized to register this node\"}"
+  },
+  {
+    "actor_cn": "pi-test.thesis.local",
+    "action": "NODE_HEARTBEAT",
+    "target": "node:pi-test",
+    "result": "SUCCESS",
+    "id": 42,
+    "timestamp": "2026-05-24 12:12:30.889494",
+    "details": "{\"state\": \"active\", \"state_changed\": false, \"note\": \"actor label test\"}"
+  },
+  {
+    "actor_cn": "pi-test.thesis.local",
+    "action": "AUTH_FAILURE",
+    "target": "node:pi-fake-2",
+    "result": "REJECTED",
+    "id": 43,
+    "timestamp": "2026-05-24 12:12:30.908175",
+    "details": "{\"reason\": \"actor not authorized to register this node\"}"
+  },
+  {
+    "actor_cn": "pi-test.thesis.local",
+    "action": "NODE_HEARTBEAT",
+    "target": "node:pi-test",
+    "result": "SUCCESS",
+    "id": 44,
+    "timestamp": "2026-05-24 12:12:30.935475",
+    "details": "{\"state\": \"active\", \"state_changed\": false, \"note\": \"actor label test\"}"
+  },
+  {
+    "actor_cn": "pi-test.thesis.local",
+    "action": "AUTH_FAILURE",
+    "target": "node:pi-fake-3",
+    "result": "REJECTED",
+    "id": 45,
+    "timestamp": "2026-05-24 12:12:30.952414",
+    "details": "{\"reason\": \"actor not authorized to register this node\"}"
+  },
+  {
+    "actor_cn": "pi-test.thesis.local",
+    "action": "NODE_HEARTBEAT",
+    "target": "node:pi-test",
+    "result": "SUCCESS",
+    "id": 46,
+    "timestamp": "2026-05-24 12:12:30.978228",
+    "details": "{\"state\": \"active\", \"state_changed\": false, \"note\": \"actor label test\"}"
+  },
+  {
+    "actor_cn": "pi-test.thesis.local",
+    "action": "AUTH_FAILURE",
+    "target": "node:pi-fake-4",
+    "result": "REJECTED",
+    "id": 47,
+    "timestamp": "2026-05-24 12:12:30.997259",
+    "details": "{\"reason\": \"actor not authorized to register this node\"}"
+  },
+  {
+    "actor_cn": "pi-test.thesis.local",
+    "action": "NODE_HEARTBEAT",
+    "target": "node:pi-test",
+    "result": "SUCCESS",
+    "id": 48,
+    "timestamp": "2026-05-24 12:12:31.025397",
+    "details": "{\"state\": \"active\", \"state_changed\": false, \"note\": \"actor label test\"}"
+  },
+  {
+    "actor_cn": "pi-test.thesis.local",
+    "action": "AUTH_FAILURE",
+    "target": "node:pi-fake-5",
+    "result": "REJECTED",
+    "id": 49,
+    "timestamp": "2026-05-24 12:12:31.053286",
+    "details": "{\"reason\": \"actor not authorized to register this node\"}"
+  },
+  {
+    "actor_cn": "pi-test.thesis.local",
+    "action": "NODE_HEARTBEAT",
+    "target": "node:pi-test",
+    "result": "SUCCESS",
+    "id": 50,
+    "timestamp": "2026-05-24 12:12:31.118504",
+    "details": "{\"state\": \"active\", \"state_changed\": false, \"note\": \"actor label test\"}"
+  },
+  {
+    "actor_cn": "pi-test.thesis.local",
+    "action": "AUTH_FAILURE",
+    "target": "node:pi-fake-6",
+    "result": "REJECTED",
+    "id": 51,
+    "timestamp": "2026-05-24 12:12:31.157463",
+    "details": "{\"reason\": \"actor not authorized to register this node\"}"
+  },
+  {
+    "actor_cn": "controller.thesis.local",
+    "action": "NODE_REGISTER",
+    "target": "node:demo-alpha",
+    "result": "SUCCESS",
+    "id": 52,
+    "timestamp": "2026-05-24 12:13:09.178935",
+    "details": "{\"role\": \"valid\", \"ip\": null}"
+  },
+  {
+    "actor_cn": "controller.thesis.local",
+    "action": "NODE_REGISTER",
+    "target": "node:demo-beta",
+    "result": "SUCCESS",
+    "id": 53,
+    "timestamp": "2026-05-24 12:13:09.233160",
+    "details": "{\"role\": \"valid\", \"ip\": null}"
+  },
+  {
+    "actor_cn": "controller.thesis.local",
+    "action": "NODE_REGISTER",
+    "target": "node:pi-test",
+    "result": "REJECTED",
+    "id": 54,
+    "timestamp": "2026-05-24 12:13:09.271347",
+    "details": "{\"reason\": \"node already registered\"}"
+  }
+]
