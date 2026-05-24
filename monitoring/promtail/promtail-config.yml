@@ -43,11 +43,17 @@ scrape_configs:
                   audit_action: action
                   audit_result: result
                   actor_cn: actor_cn
+            # actor_cn promoted to a label: the lab's actor set is small and
+            # bounded (controller, operator, pi-01..04, pi-test ~= 8 values), and
+            # the Audit Trail Explorer dashboard needs it as a label for the
+            # identity dropdown + per-actor filtering. (Revised from the earlier
+            # 9C-i decision to omit it — over-cautious for lab scale.)
             - labels:
                 level:
                 event:
                 audit_action:
                 audit_result:
+                actor_cn:
             - timestamp:
                 source: timestamp
                 format: RFC3339Nano
