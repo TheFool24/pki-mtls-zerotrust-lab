@@ -33,3 +33,7 @@ venv/
 
 # Nginx runtime certs (issued at deploy time)
 nginx/certs/
+
+# CA backups (also stored off-repo in ~/thesis-ca-backups)
+*.tar.gz.enc
+thesis-ca-backups/
