@@ -21,8 +21,13 @@ async def list_audit_events(
     offset: int = Query(default=0, ge=0),
     actor_cn: str | None = Query(default=None),
     action: str | None = Query(default=None),
+    result: str | None = Query(default=None),
 ) -> list[AuditEvent]:
     """Query audit events with filtering.
+
+    `action` and `result` accept either the enum value (`node.register`,
+    `rejected`) or the stored name (`NODE_REGISTER`, `REJECTED`) — SQLAlchemy's
+    Enum type coerces both to the column's stored representation.
 
     For now, any authenticated node can read audit log. In a production
     deployment, this would be restricted to controller/admin role only.
@@ -34,6 +39,8 @@ async def list_audit_events(
         stmt = stmt.where(AuditEvent.actor_cn == actor_cn)
     if action:
         stmt = stmt.where(AuditEvent.action == action)
+    if result:
+        stmt = stmt.where(AuditEvent.result == result)
 
     stmt = stmt.offset(offset).limit(limit)
 
