@@ -1,0 +1,34 @@
+=== Step 8D negative test — no self-recovery from a broken/expired cert ===
+Captured 2026-05-28. Cert truncated to 0 bytes; agent refuses to start and
+demands manual re-enrollment; NO automatic credential exists to self-recover.
+Then cert restored -> agent healthy. Backs the thesis 'no stored secret' claim.
+======================================================================
+HTTP Request: POST https://controller.thesis.local/api/v1/nodes/pi-01/heartbeat "HTTP/1.1 200 OK"
+Stopping thesis-node-agent.service - Thesis Lab Node Agent — heartbeat + mTLS metrics endpoint...
+{"reason": "signal", "event": "agent_stopped", "level": "info", "timestamp": "2026-05-28T18:06:59.272948Z"}
+thesis-node-agent.service: Deactivated successfully.
+Stopped thesis-node-agent.service - Thesis Lab Node Agent — heartbeat + mTLS metrics endpoint.
+thesis-node-agent.service: Consumed 2.072s CPU time.
+Started thesis-node-agent.service - Thesis Lab Node Agent — heartbeat + mTLS metrics endpoint.
+{"node_id": "pi-01", "common_name": "pi-01.thesis.local", "controller": "https://controller.thesis.local", "event": "agent_starting", "level": "info", "timestamp": "2026-05-28T18:07:00.994149Z"}
+{"path": "/etc/thesis-lab/certs/pi-01.crt", "stderr": "file /etc/thesis-lab/certs/pi-01.crt does not contain any valid CERTIFICATE or CERTIFICATE REQUEST blocks", "action": "MANUAL RE-ENROLLMENT REQUIRED -- see RUNBOOK-reenroll.md", "event": "cert_unreadable", "level": "error", "timestamp": "2026-05-28T18:07:01.065003Z"}
+thesis-node-agent.service: Main process exited, code=exited, status=1/FAILURE
+thesis-node-agent.service: Failed with result 'exit-code'.
+thesis-node-agent.service: Consumed 1.662s CPU time.
+thesis-node-agent.service: Scheduled restart job, restart counter is at 1.
+Started thesis-node-agent.service - Thesis Lab Node Agent — heartbeat + mTLS metrics endpoint.
+{"node_id": "pi-01", "common_name": "pi-01.thesis.local", "controller": "https://controller.thesis.local", "event": "agent_starting", "level": "info", "timestamp": "2026-05-28T18:07:12.797123Z"}
+{"path": "/etc/thesis-lab/certs/pi-01.crt", "stderr": "file /etc/thesis-lab/certs/pi-01.crt does not contain any valid CERTIFICATE or CERTIFICATE REQUEST blocks", "action": "MANUAL RE-ENROLLMENT REQUIRED -- see RUNBOOK-reenroll.md", "event": "cert_unreadable", "level": "error", "timestamp": "2026-05-28T18:07:12.865705Z"}
+thesis-node-agent.service: Main process exited, code=exited, status=1/FAILURE
+thesis-node-agent.service: Failed with result 'exit-code'.
+thesis-node-agent.service: Consumed 1.702s CPU time.
+Stopped thesis-node-agent.service - Thesis Lab Node Agent — heartbeat + mTLS metrics endpoint.
+thesis-node-agent.service: Consumed 1.702s CPU time.
+Started thesis-node-agent.service - Thesis Lab Node Agent — heartbeat + mTLS metrics endpoint.
+{"node_id": "pi-01", "common_name": "pi-01.thesis.local", "controller": "https://controller.thesis.local", "event": "agent_starting", "level": "info", "timestamp": "2026-05-28T18:07:20.966910Z"}
+{"hours_left": 168.0, "event": "cert_valid", "level": "info", "timestamp": "2026-05-28T18:07:21.041389Z"}
+{"bind": "0.0.0.0", "port": 9100, "allowed_scrapers": ["prometheus.thesis.local"], "event": "metrics_server_listening", "level": "info", "timestamp": "2026-05-28T18:07:21.296514Z"}
+HTTP Request: POST https://controller.thesis.local/api/v1/nodes "HTTP/1.1 409 Conflict"
+{"node_id": "pi-01", "event": "already_registered", "level": "info", "timestamp": "2026-05-28T18:07:21.337514Z"}
+{"interval": 30, "jitter": 5, "event": "heartbeat_loop_starting", "level": "info", "timestamp": "2026-05-28T18:07:21.337955Z"}
+HTTP Request: POST https://controller.thesis.local/api/v1/nodes/pi-01/heartbeat "HTTP/1.1 200 OK"

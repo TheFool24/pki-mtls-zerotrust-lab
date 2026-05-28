@@ -127,21 +127,68 @@ deployment with continuous operation would retain 24h.
 
 A compromised node must not yield an enrollment credential (which would let an
 attacker enroll arbitrary node CNs). The enrollment password is used once at 8B
-and shredded. Consequence for 8D: renewal must be **X5C-only** (authenticates
-with the existing cert, no secret). A node offline >7 days (cert expired) requires
-**manual re-enrollment** — rare, and the operator is physically present anyway.
-There is deliberately **no automated JWK re-enrollment fallback**, because that
-would reintroduce the secret onto the node and silently undo this property.
+and shredded. Consequence for 8D: renewal uses the node's **existing cert as the
+sole credential** — no secret stored on the node. A node offline >7 days (cert
+expired) requires **manual re-enrollment** — rare, and the operator is physically
+present anyway. There is deliberately **no automated re-enrollment fallback**,
+because that would reintroduce the enrollment secret onto the node and silently
+undo this property.
 
-### 8D plan (next)
+### Renewal mechanism: `step ca renew` (mTLS), NOT the X5C provisioner
 
-- systemd timer (every ~8h) + **renew-on-boot** unit: `step ca renew` via X5C
-  when inside the renewal window. Renew-on-boot is the *resilience* pattern
-  (covers gaps between timer fires across power cycles).
-- **No** JWK fallback — on expired cert the agent logs a structured error and
-  exits (systemd will keep restarting; recovery is the manual re-enroll runbook).
-- Verification must include a **negative test**: wreck the cert, confirm the
-  agent fails loudly and does *not* self-recover (proves the absence of fallback).
+The original plan called node renewal "X5C." During 8D box-diff this turned out to
+be a misnomer that would have made Гл. 2 inaccurate. The two are different step-ca
+mechanisms:
+
+- **`step ca renew <crt> <key>`** — presents the *existing* cert as an **mTLS client
+  credential** to step-ca's `/renew` endpoint. The renewed cert inherits the
+  *original* issuing provisioner (`node-enrollment`) and **reuses the key**. This
+  is the canonical step-ca renewal pattern and what Smallstep recommends for
+  automated renewal. **This is what the node actually uses.**
+- **X5C provisioner** — used with `step ca token --x5c-cert/--x5c-key` to mint a
+  *new* cert authenticated by presenting an existing cert as a token. Designed for
+  cross-trust-chain bootstrap (cloud instance identity docs, TPM attestation), not
+  routine renewal; it issues a fresh key rather than reusing one.
+
+Both satisfy the "no stored secret" property (the existing cert is the credential).
+We chose `step ca renew` because it is the canonical pattern, simpler (one command,
+no token-minting step), and reuses the key. The `node-renewal` X5C provisioner is
+**retained and demonstrated functional** (see `docs/evidence/step-8d/x5c-demo.txt`
+— it issued a throwaway cert showing `Provisioner: node-renewal`), but documented
+as an *evaluated-but-unused* alternative. **Гл. 2.4.2 must describe mTLS-renew, not
+X5C-renew.** (Drift item.)
+
+### 8D — node cert renewal automation (implemented)
+
+- **`/opt/thesis-node/renew-cert.sh`** (repo: `node-agent/deploy/`): `step ca renew`
+  when `step certificate needs-renewal --expires-in=48h` says so; on success it
+  restarts the agent (which caches its SSLContext at startup) via NOPASSWD sudo.
+  On failure (expired cert can't authenticate) it logs `FATAL … MANUAL
+  RE-ENROLLMENT REQUIRED` and exits non-zero. **No fallback.**
+- **`thesis-cert-renew.timer`**: `OnUnitActiveSec=8h` + **`OnBootSec=2min`**
+  (renew-on-boot resilience for intermittent operation) + `Persistent=true`.
+- **Agent startup validity gate** (`node-agent/app/cert_guard.py`): before entering
+  the loop, the agent runs `step certificate inspect --format json` and refuses to
+  start (exits 1, loudly) on a missing/unreadable/expired cert — `cryptography` is
+  not on the node, so the `step` subprocess avoids adding a dependency.
+- **Cert ownership:** `pi-01.crt` chowned `root→jojo` so the jojo-run renewal can
+  rewrite it (key stays `600 jojo`, reused on renewal).
+- **Re-enroll runbook** (`RUNBOOK-reenroll.md`): mirrors the proven 8B recipe —
+  single SSH session, enrollment password via stdin, `step ca certificate` with
+  `node-enrollment`, install, shred.
+
+**Verified (evidence in `docs/evidence/step-8d/`):**
+1. Manual `step ca renew` as jojo → fresh serial, validity window advanced, **key
+   reused** (identical sha256), ran without sudo (chown fix confirmed).
+2. Threshold gate skips correctly when the cert is fresh (`>48h`).
+3. Timer scheduled (next run + renew-on-boot).
+4. **Negative test** (`negative-test.txt`): cert truncated to 0 bytes → agent fails
+   loudly (`cert_unreadable → MANUAL RE-ENROLLMENT REQUIRED`, exit 1), systemd
+   restart-loops without recovering, cert stays empty (no self-issued credential);
+   restored cert → agent healthy (`cert_valid 168h`).
+
+This closes the Pi-01 lifecycle (enroll → operate → renew) and is the template for
+the Ansible playbook (Pi-02/03/04).
 
 ---
 

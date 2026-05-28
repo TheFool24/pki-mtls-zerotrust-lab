@@ -1,0 +1,13 @@
+[Unit]
+Description=Thesis Node certificate renewal (mTLS /renew endpoint)
+Documentation=file:///opt/thesis-node/RUNBOOK-reenroll.md
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=jojo
+Group=jojo
+ExecStart=/opt/thesis-node/renew-cert.sh
+StandardOutput=journal
+StandardError=journal

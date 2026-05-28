@@ -1,0 +1,13 @@
+[Unit]
+Description=Run thesis node cert renewal every 8h and shortly after boot
+
+[Timer]
+# renew-on-boot: covers the intermittent-operation case — the node powers on,
+# checks renewal ~2 min after network is up, well before the 7-day cert lapses.
+OnBootSec=2min
+OnUnitActiveSec=8h
+# If the machine was off when a run was due, run it on next boot.
+Persistent=true
+
+[Install]
+WantedBy=timers.target

@@ -5,6 +5,7 @@ import signal
 
 from aiohttp import web
 
+from app.cert_guard import assert_cert_usable
 from app.config import settings
 from app.heartbeat import run as run_heartbeat
 from app.logging_setup import configure as configure_logging, get_logger
@@ -40,6 +41,9 @@ async def main() -> None:
              node_id=settings.node_id,
              common_name=settings.node_common_name,
              controller=settings.controller_url)
+
+    # Refuse to start with a missing/unreadable/expired cert (exits loudly).
+    assert_cert_usable()
 
     stop_event = asyncio.Event()
     loop = asyncio.get_running_loop()

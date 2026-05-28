@@ -1,0 +1,34 @@
+=== X5C provisioner demonstration: node-renewal ===
+Date: 2026-05-28T21:01:06+03:00  Host: pi-01
+Purpose: prove the node-renewal X5C provisioner CAN issue a cert authenticated
+by an existing cert. NOTE: this is NOT the routine renewal path — routine node
+cert renewal uses step ca renew (mTLS /renew endpoint). This demo backs the thesis
+claim that X5C was evaluated and is functional, but mTLS-renew was chosen.
+
+--- The X5C credential: pi-01 existing cert ---
+X.509v3 TLS Certificate (ECDSA P-256) [Serial: 2409...8570]
+  Subject:     pi-01.thesis.local
+               pi-01
+               10.50.30.11
+  Issuer:      Thesis Lab CA Intermediate CA
+  Provisioner: node-enrollment [ID: tKVS...j8Ww]
+  Valid from:  2026-05-25T19:23:45Z
+          to:  2026-06-01T19:24:45Z
+
+--- Issue a throwaway cert via the node-renewal X5C provisioner ---
+✔ Provisioner: node-renewal (X5C)
+✔ CA: https://ca.thesis.local:9000
+✔ Certificate: /tmp/x5c-demo.crt
+✔ Private Key: /tmp/x5c-demo.key
+issuance exit code: 0
+
+--- Inspect issued cert (expect Provisioner: node-renewal) ---
+X.509v3 TLS Certificate (ECDSA P-256) [Serial: 4997...7223]
+  Subject:     x5c-demo.thesis.local
+  Issuer:      Thesis Lab CA Intermediate CA
+  Provisioner: node-renewal
+  Valid from:  2026-05-28T18:00:06Z
+          to:  2026-05-28T18:06:06Z
+
+--- Cleanup: delete throwaway cert + key ---
+remaining /tmp/x5c-demo.* : ls: cannot access '/tmp/x5c-demo.*': No such file or directory

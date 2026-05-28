@@ -46,10 +46,11 @@ Status legend: ☐ todo · ☑ done · ⏳ deferred-by-design
   `thesis-step-ca-data` volume. Plan: export + encrypt to USB/sealed envelope,
   delete from volume, verify step-ca still serves (uses Intermediate). Demo this
   live at defense — strong evidence of two-tier offline-Root design.
-- ⏳ **Node cert renewal automation.** The `node-renewal` X5C provisioner exists
-  but isn't wired to anything. Bake `step ca renew` (systemd timer, X5C auth) into
-  the Pi bootstrap (Step 8) so all node certs self-renew — otherwise 24h node
-  certs expire between sessions (already a recurring pain with pi-test).
+- ☑ **Node cert renewal automation (Pi-01, Step 8D).** `step ca renew` (mTLS
+  `/renew` endpoint — NOT the X5C provisioner; see 08-step-8-node-fleet.md) wired
+  via `thesis-cert-renew.timer` (8h + renew-on-boot) on pi-01, with a startup
+  validity gate and a manual re-enroll runbook. No secret on the node; no
+  auto-fallback (verified by negative test). Replicate to Pi-02/03/04 via Ansible.
 - ⏳ **MikroTik internal DNS.** Currently using `/etc/hosts` on the controller for
   `*.thesis.local`. Set up MikroTik DNS (or Ansible-managed `/etc/hosts`) so Pi
   nodes resolve names without manual edits.
