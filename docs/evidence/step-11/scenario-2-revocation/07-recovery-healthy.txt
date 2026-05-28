@@ -1,0 +1,8 @@
+=== 07 — RECOVERY: Pi-02 healthy again ===
+captured: 2026-05-28T21:38:52Z
+--- agent journal (cert_valid -> already_registered (409 handled) -> heartbeat 200) ---
+{"hours_left": 168.0, "event": "cert_valid", "level": "info", "timestamp": "2026-05-28T21:38:28.026146Z"}
+{"node_id": "pi-02", "event": "already_registered", "level": "info", "timestamp": "2026-05-28T21:38:28.280701Z"}
+HTTP Request: POST https://controller.thesis.local/api/v1/nodes/pi-02/heartbeat "HTTP/1.1 200 OK"
+--- controller DB: pi-02 active, heartbeat advancing ---
+pi-02: state=active role=valid last_hb=2026-05-28 21:38:28.289967

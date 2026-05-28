@@ -1,0 +1,7 @@
+=== 02 — REVOKE Pi-02's certificate (operator action from controller) ===
+captured: 2026-05-28T21:35:59Z
+serial: 235076921780758573311042671655583629781
+method: admin-provisioner revoke token -> step ca revoke --token
+--- output ---
+[32m[32m✔[0m [1mCA[0m[1m:[0m https://ca.thesis.local:9000
+Certificate with Serial Number 235076921780758573311042671655583629781 has been revoked.

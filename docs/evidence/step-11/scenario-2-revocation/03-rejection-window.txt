@@ -1,0 +1,7 @@
+=== 03 — REJECTION WINDOW: Pi-02 heartbeats rejected (cert revoked) ===
+captured: 2026-05-28T21:37:44Z
+--- pi-02 agent journal (heartbeat now 403 + logged failures) ---
+HTTP Request: POST https://controller.thesis.local/api/v1/nodes/pi-02/heartbeat "HTTP/1.1 403 Forbidden"
+{"error": "Client error '403 Forbidden' for url 'https://controller.thesis.local/api/v1/nodes/pi-02/heartbeat'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/403", "event": "heartbeat_failed", "level": "error", "timestamp": "2026-05-28T21:37:13.028204Z"}
+HTTP Request: POST https://controller.thesis.local/api/v1/nodes/pi-02/heartbeat "HTTP/1.1 403 Forbidden"
+{"error": "Client error '403 Forbidden' for url 'https://controller.thesis.local/api/v1/nodes/pi-02/heartbeat'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/403", "event": "heartbeat_failed", "level": "error", "timestamp": "2026-05-28T21:37:45.501720Z"}

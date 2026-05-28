@@ -1,0 +1,10 @@
+=== 06 — RE-ENROLLMENT: controller-mediated recovery (operational-after) ===
+Re-ran the CSR-sign play (ansible-playbook 20-enroll.yml --limit pi-02): the node
+generated a FRESH keypair + CSR locally, the controller signed it with the
+node-enrollment provisioner, the new cert was installed, agent restarted.
+
+old (revoked) serial: 235076921780758573311042671655583629781
+new (valid)   serial: 140769700215239500232528141890255848575
+
+The new serial is NOT in the CRL, so the agent's heartbeats are accepted again.
+The old serial remains revoked in the CRL (harmless; drops off after expiry).

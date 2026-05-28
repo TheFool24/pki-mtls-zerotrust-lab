@@ -1,0 +1,12 @@
+{
+  "id": 64,
+  "timestamp": "2026-05-28 21:37:45.471183",
+  "actor_cn": "pi-02.thesis.local",
+  "action": "auth.failure",
+  "result": "rejected",
+  "target": "cert:b0da2b1500280cca7116fd5e85a641d5",
+  "details": {
+    "reason": "certificate revoked",
+    "serial": "b0da2b1500280cca7116fd5e85a641d5"
+  }
+}
