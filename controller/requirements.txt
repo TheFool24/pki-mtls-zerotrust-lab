@@ -18,3 +18,6 @@ httpx[http2]==0.28.1
 # Metrics
 prometheus-fastapi-instrumentator==7.0.0
 prometheus-client==0.21.1
+
+# X.509 CRL parsing (certificate revocation enforcement)
+cryptography==44.0.0

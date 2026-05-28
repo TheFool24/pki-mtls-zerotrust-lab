@@ -1,0 +1,25 @@
+=== Сценарий 2 foundation: controller-layer certificate revocation enforcement ===
+Captured 2026-05-28. Independent de-risk test BEFORE Pi-02 (throwaway cert).
+
+Design: nginx forwards $ssl_client_serial as X-Client-Serial; the controller
+fetches step-ca's CRL every 60s (cached revoked-serial set) and rejects a revoked
+serial with 403 + an AUTH_FAILURE audit row. step-ca is the source of truth.
+
+GOTCHA: step-ca's CRL defaulted to a ~24h cacheDuration, so a freshly-revoked
+serial never appeared in the served CRL. Fixed in ca.json:
+  .crl = {"enabled": true, "generationInterval": "30s", "cacheDuration": "1m"}
+
+Test sequence:
+1. Throwaway leaf issued via node-enrollment: CN=revoke-test.thesis.local
+   serial = 198657700170889020770271531813418060237 (hex 957414d2f993b0d8a378cdc8ec4849cd)
+2. BASELINE — whoami with throwaway cert: HTTP 200 (accepted, not revoked)
+3. step ca revoke --cert rt.crt --key rt.key  -> "Certificate ... has been revoked."
+4. step-ca CRL after revoke: revoked count = 1, target serial present = True
+5. controller crl_updated revoked_count=1 (picked up within refresh cycle)
+6. REVOKED — whoami with same cert: HTTP 403 ("Client certificate has been revoked")
+7. Audit row:
+   id=60 auth.failure rejected {'reason': 'certificate revoked',
+                                'serial': '957414d2f993b0d8a378cdc8ec4849cd'}
+
+Result: a revoked-but-unexpired cert is actively rejected at the application
+layer with dashboard-visible audit evidence (Audit Trail Explorer, result=rejected).

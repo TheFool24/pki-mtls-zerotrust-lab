@@ -46,6 +46,9 @@ services:
       - "8000"
     volumes:
       - controller-data:/app/data
+      # CA trust bundle — lets the controller verify step-ca's TLS when fetching
+      # the CRL for certificate-revocation checking.
+      - ./nginx/certs/ca-trust.crt:/etc/thesis-certs/ca-trust.crt:ro
     networks:
       thesis-net:
         ipv4_address: 172.28.0.30

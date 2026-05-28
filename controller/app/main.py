@@ -14,6 +14,7 @@ from app.api import audit, health, nodes, whoami
 from app.core.config import settings
 from app.core.logging import configure_logging, get_logger
 from app.core.metrics_hooks import periodic_gauge_refresh
+from app.core.revocation import periodic_crl_refresh
 from app.db.session import init_db
 
 
@@ -32,15 +33,18 @@ async def lifespan(app: FastAPI):
 
     # Background task: refresh gauges every 30s
     gauge_task = asyncio.create_task(periodic_gauge_refresh(interval_seconds=30))
+    # Background task: refresh the revoked-serial cache from step-ca's CRL
+    crl_task = asyncio.create_task(periodic_crl_refresh())
 
     yield
 
     log.info("controller_stopping")
-    gauge_task.cancel()
-    try:
-        await gauge_task
-    except asyncio.CancelledError:
-        pass
+    for task in (gauge_task, crl_task):
+        task.cancel()
+        try:
+            await task
+        except asyncio.CancelledError:
+            pass
 
 
 app = FastAPI(

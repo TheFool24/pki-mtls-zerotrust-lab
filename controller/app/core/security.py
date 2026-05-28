@@ -10,10 +10,15 @@ from dataclasses import dataclass
 from typing import Annotated
 
 from fastapi import Depends, Header, HTTPException, status
+from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.audit import record_event
 from app.core.config import settings
 from app.core.logging import get_logger
 from app.core.metrics import mtls_auth_total
+from app.core.revocation import is_revoked
+from app.db.session import get_session
+from app.models.audit import AuditAction, AuditResult
 
 log = get_logger("security")
 
@@ -27,6 +32,7 @@ class MTLSIdentity:
     common_name: str
     full_dn: str
     verified: bool
+    serial: int | None = None  # client cert serial (from nginx $ssl_client_serial)
 
     @property
     def is_controller(self) -> bool:
@@ -44,9 +50,22 @@ class MTLSIdentity:
         return self.common_name.split(".")[0]
 
 
+def _parse_serial(raw: str | None) -> int | None:
+    """nginx $ssl_client_serial is uppercase hex (no separators). Normalize to
+    int so it compares against CRL serial numbers regardless of formatting."""
+    if not raw:
+        return None
+    try:
+        return int(raw, 16)
+    except ValueError:
+        log.warning("mtls_serial_parse_failed", raw=raw)
+        return None
+
+
 def get_mtls_identity(
     x_client_verify: Annotated[str | None, Header()] = None,
     x_client_dn: Annotated[str | None, Header()] = None,
+    x_client_serial: Annotated[str | None, Header()] = None,
 ) -> MTLSIdentity:
     """FastAPI dependency that extracts and validates mTLS identity.
 
@@ -86,8 +105,43 @@ def get_mtls_identity(
 
     mtls_auth_total.labels(result="success").inc()
     cn = match.group(1).strip()
-    return MTLSIdentity(common_name=cn, full_dn=x_client_dn, verified=True)
+    return MTLSIdentity(
+        common_name=cn,
+        full_dn=x_client_dn,
+        verified=True,
+        serial=_parse_serial(x_client_serial),
+    )
 
 
-# Type alias for dependency injection
-MTLSIdentityDep = Annotated[MTLSIdentity, Depends(get_mtls_identity)]
+async def require_live_identity(
+    identity: Annotated[MTLSIdentity, Depends(get_mtls_identity)],
+    session: Annotated[AsyncSession, Depends(get_session)],
+) -> MTLSIdentity:
+    """Like get_mtls_identity, but additionally rejects a REVOKED client cert.
+
+    Revocation is re-checked per request against the CA's current CRL (cached by
+    app.core.revocation). A revoked serial is rejected with 403 and recorded as
+    an AUTH_FAILURE audit event — the dashboard-visible evidence for Сценарий 2.
+    """
+    if identity.serial is not None and is_revoked(identity.serial):
+        mtls_auth_total.labels(result="revoked").inc()
+        await record_event(
+            session,
+            actor_cn=identity.common_name,
+            action=AuditAction.AUTH_FAILURE,
+            target=f"cert:{identity.serial:x}",
+            result=AuditResult.REJECTED,
+            details={"reason": "certificate revoked", "serial": f"{identity.serial:x}"},
+        )
+        await session.commit()
+        log.warning("mtls_cert_revoked", cn=identity.common_name, serial=f"{identity.serial:x}")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Client certificate has been revoked",
+        )
+    return identity
+
+
+# Type alias for dependency injection. Enforces mTLS verification AND certificate
+# revocation, so every endpoint that depends on it re-checks revocation per request.
+MTLSIdentityDep = Annotated[MTLSIdentity, Depends(require_live_identity)]

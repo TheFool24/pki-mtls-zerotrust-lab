@@ -27,5 +27,12 @@ class Settings(BaseSettings):
     # When True, allow requests without mTLS headers (dev/test only)
     allow_unauthenticated: bool = False
 
+    # Certificate revocation — controller fetches step-ca's CRL and rejects
+    # requests bearing a revoked client-cert serial (Zero Trust: re-checked per
+    # request, not just at the TLS handshake).
+    crl_url: str = "https://ca.thesis.local:9000/crl"
+    ca_trust_file: str = "/etc/thesis-certs/ca-trust.crt"
+    crl_refresh_seconds: int = 60
+
 
 settings = Settings()
