@@ -56,10 +56,9 @@ scrape_configs:
       cert_file: /etc/thesis-certs/client.crt
       key_file: /etc/thesis-certs/client.key
       ca_file: /etc/thesis-certs/ca-trust.crt
-      # Pi nodes are outside the Docker bridge — addressed by IP. server_name
-      # tells Prometheus to verify the received cert against this FQDN (which
-      # is a SAN on the node leaf cert).
-      server_name: pi-01.thesis.local
+      # No job-level server_name: nodes are addressed by IP (outside the Docker
+      # bridge's DNS), and each node leaf carries its IP as an IP SAN, so each
+      # target is verified against its own cert. This scales to the whole fleet.
     static_configs:
       - targets: ["10.50.30.11:9100"]
         labels:
@@ -67,3 +66,9 @@ scrape_configs:
           tier: node
           role: valid
           common_name: pi-01.thesis.local
+      - targets: ["10.50.30.12:9100"]
+        labels:
+          node_id: pi-02
+          tier: node
+          role: valid
+          common_name: pi-02.thesis.local

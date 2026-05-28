@@ -1,0 +1,95 @@
+---
+# CSR-sign enrollment. The node generates its keypair + CSR locally (private key
+# NEVER leaves the node); only the CSR (public) is fetched to the controller,
+# which signs it with the node-enrollment provisioner (password NEVER leaves the
+# controller); the signed cert is copied back. Stronger than Pi-01's manual
+# password-transfer — no enrollment secret ever touches the node.
+- name: Enroll node via CSR-sign
+  hosts: nodes
+  gather_facts: false
+  tasks:
+    - name: Generate keypair + CSR on the node (key stays here)
+      become: true
+      become_user: jojo
+      command:
+        argv:
+          - /usr/local/bin/step
+          - certificate
+          - create
+          - "{{ node_cn }}"
+          - "/tmp/{{ node_id }}.csr"
+          - "/tmp/{{ node_id }}.key"
+          - --csr
+          - --kty=EC
+          - --curve=P-256
+          - --no-password
+          - --insecure
+          - --force
+          - "--san={{ node_cn }}"
+          - "--san={{ node_id }}"
+          - "--san={{ node_ip }}"
+
+    - name: Prepare controller-side scratch dir
+      delegate_to: localhost
+      become: false
+      file:
+        path: "{{ csr_workdir }}"
+        state: directory
+        mode: "0700"
+
+    - name: Fetch the CSR to the controller
+      fetch:
+        src: "/tmp/{{ node_id }}.csr"
+        dest: "{{ csr_workdir }}/{{ node_id }}.csr"
+        flat: true
+
+    - name: Sign the CSR on the controller (node-enrollment; password stays here)
+      delegate_to: localhost
+      become: false
+      command:
+        chdir: "{{ csr_workdir }}"
+        argv:
+          - /usr/local/bin/step
+          - ca
+          - sign
+          - "{{ node_id }}.csr"
+          - "{{ node_id }}.crt"
+          - --provisioner=node-enrollment
+          - "--provisioner-password-file={{ enrollment_pw_in_container }}"
+          - "--not-after={{ node_cert_lifetime }}"
+          - --force
+
+    - name: Install signed cert on the node
+      become: true
+      copy:
+        src: "{{ csr_workdir }}/{{ node_id }}.crt"
+        dest: "{{ node_certs_dir }}/{{ node_id }}.crt"
+        owner: jojo
+        group: jojo
+        mode: "0644"
+
+    - name: Install the private key (move from /tmp, lock down perms)
+      become: true
+      command: install -o jojo -g jojo -m 600 /tmp/{{ node_id }}.key {{ node_certs_dir }}/{{ node_id }}.key
+
+    - name: Install CA root on the node
+      become: true
+      copy:
+        src: "{{ ca_root_src }}"
+        dest: "{{ node_certs_dir }}/ca-root.crt"
+        owner: root
+        group: root
+        mode: "0644"
+
+    - name: Shred the node's temp CSR + key
+      become: true
+      command: shred -u /tmp/{{ node_id }}.csr /tmp/{{ node_id }}.key
+      args:
+        removes: /tmp/{{ node_id }}.key
+
+    - name: Clean controller-side scratch (CSR + signed cert)
+      delegate_to: localhost
+      become: false
+      file:
+        path: "{{ csr_workdir }}"
+        state: absent

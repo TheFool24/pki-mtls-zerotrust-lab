@@ -1,0 +1,65 @@
+---
+# Base system: hosts file, step CLI, dirs, Python venv + agent deps.
+# NOTE: the apt + pip tasks need WAN — enable the temporary VLAN30->WAN MikroTik
+# rule before running this play and remove it after (provisioning-window pattern).
+- name: Base system for thesis node
+  hosts: nodes
+  gather_facts: true
+  become: true
+  tasks:
+    - name: Stop cloud-init from managing /etc/hosts (else it wipes our entries)
+      copy:
+        dest: /etc/cloud/cloud.cfg.d/99-thesis-hosts.cfg
+        content: "manage_etc_hosts: false\n"
+        owner: root
+        group: root
+        mode: "0644"
+
+    - name: Controller + CA /etc/hosts entries
+      blockinfile:
+        path: /etc/hosts
+        marker: "# {mark} THESIS LAB"
+        block: |
+          10.50.20.200 controller.thesis.local ca.thesis.local
+
+    - name: Install step CLI (arm64, from the pinned image, cached in repo)
+      copy:
+        src: "{{ step_bin_src }}"
+        dest: /usr/local/bin/step
+        owner: root
+        group: root
+        mode: "0755"
+
+    - name: Python venv + pip toolchain (WAN)
+      apt:
+        name:
+          - python3-venv
+          - python3-pip
+        update_cache: true
+
+    - name: Node directories
+      file:
+        path: "{{ item.path }}"
+        state: directory
+        owner: "{{ item.owner }}"
+        group: "{{ item.owner }}"
+        mode: "0755"
+      loop:
+        - { path: "{{ node_app_dir }}", owner: jojo }
+        - { path: "{{ node_config_dir }}", owner: root }
+        - { path: "{{ node_certs_dir }}", owner: root }
+
+    - name: Copy agent requirements
+      copy:
+        src: "{{ repo_dir }}/node-agent/requirements.txt"
+        dest: "{{ node_app_dir }}/requirements.txt"
+        owner: jojo
+        group: jojo
+        mode: "0644"
+
+    - name: Create venv + install agent deps (WAN)
+      become_user: jojo
+      pip:
+        requirements: "{{ node_app_dir }}/requirements.txt"
+        virtualenv: "{{ node_venv }}"
+        virtualenv_command: python3 -m venv

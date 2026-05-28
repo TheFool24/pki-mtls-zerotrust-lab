@@ -1,0 +1,42 @@
+---
+# Cert renewal automation: node-agnostic renew-cert.sh (sources agent.env) +
+# systemd timer (8h + renew-on-boot). Safe to run against an already-provisioned
+# node — only (re)writes the renewal script/units, does not touch the agent.
+- name: Install node cert renewal automation
+  hosts: nodes
+  gather_facts: false
+  become: true
+  tasks:
+    - name: Install renew-cert.sh (node-agnostic — reads paths from agent.env)
+      copy:
+        src: "{{ repo_dir }}/node-agent/deploy/renew-cert.sh"
+        dest: "{{ node_app_dir }}/renew-cert.sh"
+        owner: jojo
+        group: jojo
+        mode: "0755"
+
+    - name: Install re-enrollment runbook
+      copy:
+        src: "{{ repo_dir }}/node-agent/deploy/RUNBOOK-reenroll.md"
+        dest: "{{ node_app_dir }}/RUNBOOK-reenroll.md"
+        owner: jojo
+        group: jojo
+        mode: "0644"
+
+    - name: Install renewal systemd unit + timer
+      copy:
+        src: "{{ repo_dir }}/node-agent/deploy/{{ item }}"
+        dest: "/etc/systemd/system/{{ item }}"
+        owner: root
+        group: root
+        mode: "0644"
+      loop:
+        - thesis-cert-renew.service
+        - thesis-cert-renew.timer
+
+    - name: Enable + start the renewal timer
+      systemd:
+        name: thesis-cert-renew.timer
+        enabled: true
+        state: started
+        daemon_reload: true

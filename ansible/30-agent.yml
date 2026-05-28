@@ -1,0 +1,37 @@
+---
+# Deploy the node agent (code + env + systemd service).
+- name: Deploy thesis node agent
+  hosts: nodes
+  gather_facts: false
+  become: true
+  tasks:
+    - name: Sync agent application code
+      copy:
+        src: "{{ repo_dir }}/node-agent/app/"
+        dest: "{{ node_app_dir }}/app/"
+        owner: jojo
+        group: jojo
+        mode: "0644"
+
+    - name: Render agent.env for this node
+      template:
+        src: templates/agent.env.j2
+        dest: "{{ node_config_dir }}/agent.env"
+        owner: root
+        group: root
+        mode: "0644"
+
+    - name: Install systemd unit
+      copy:
+        src: "{{ repo_dir }}/node-agent/systemd/thesis-node-agent.service"
+        dest: /etc/systemd/system/thesis-node-agent.service
+        owner: root
+        group: root
+        mode: "0644"
+
+    - name: Enable + start the agent
+      systemd:
+        name: thesis-node-agent.service
+        enabled: true
+        state: restarted
+        daemon_reload: true

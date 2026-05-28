@@ -12,12 +12,20 @@
 #
 # Invoked by thesis-cert-renew.timer (every 8h) and on boot (OnBootSec). Runs as
 # the same user as the agent (jojo), which owns the cert + key.
+#
+# Node-agnostic: cert/key/CA-root paths come from the agent's env file, so this
+# script is byte-identical across pi-01..pi-04 (no per-node templating).
 set -uo pipefail
 
-CERT="/etc/thesis-lab/certs/pi-01.crt"
-KEY="/etc/thesis-lab/certs/pi-01.key"
-CA_URL="https://ca.thesis.local:9000"
-CA_ROOT="/etc/thesis-lab/certs/ca-root.crt"
+ENV_FILE="/etc/thesis-lab/node-config/agent.env"
+if [[ -f "$ENV_FILE" ]]; then
+    set -a; . "$ENV_FILE"; set +a
+fi
+
+CERT="${THESIS_CLIENT_CERT:?THESIS_CLIENT_CERT not set (agent.env missing?)}"
+KEY="${THESIS_CLIENT_KEY:?THESIS_CLIENT_KEY not set (agent.env missing?)}"
+CA_ROOT="${THESIS_CONTROLLER_CA:?THESIS_CONTROLLER_CA not set (agent.env missing?)}"
+CA_URL="https://ca.thesis.local:9000"   # lab-wide constant
 RENEW_THRESHOLD="48h"          # renew when less than this remains (of the 7d/168h life)
 STEP="/usr/local/bin/step"
 AGENT="thesis-node-agent.service"

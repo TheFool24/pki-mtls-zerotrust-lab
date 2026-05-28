@@ -37,3 +37,6 @@ nginx/certs/
 # CA backups (also stored off-repo in ~/thesis-ca-backups)
 *.tar.gz.enc
 thesis-ca-backups/
+
+# Extracted arm64 step binary (re-extract from smallstep/step-cli:0.28.1; too big for git)
+node-agent/deploy/bin/

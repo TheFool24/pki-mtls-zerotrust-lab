@@ -1,0 +1,8 @@
+---
+# Full node provisioning, in order. Run staged for the first node (per play, with
+# verify points); use this consolidated entrypoint for Pi-03/04 once proven.
+# Always target a single node: ansible-playbook site.yml --limit pi-0X
+- import_playbook: 10-base.yml
+- import_playbook: 20-enroll.yml
+- import_playbook: 30-agent.yml
+- import_playbook: 40-renew.yml

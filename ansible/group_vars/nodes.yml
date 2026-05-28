@@ -1,0 +1,27 @@
+---
+# ── Lab-wide endpoints ──
+controller_url: "https://controller.thesis.local"
+ca_url: "https://ca.thesis.local:9000"
+
+# ── On-node paths ──
+node_app_dir: /opt/thesis-node
+node_venv: /opt/thesis-node/venv
+node_certs_dir: /etc/thesis-lab/certs
+node_config_dir: /etc/thesis-lab/node-config
+
+# ── Agent config (rendered into agent.env) ──
+heartbeat_interval: 30
+heartbeat_jitter: 5
+metrics_port: 9100
+allowed_scraper_cns: prometheus.thesis.local
+node_cert_lifetime: 168h        # 7-day node leaf (see 08-step-8-node-fleet.md)
+
+# ── Controller-side sources (used by copy/template + delegate_to: localhost) ──
+repo_dir: /opt/thesis-lab
+step_bin_src: /opt/thesis-lab/node-agent/deploy/bin/step-arm64
+ca_root_src: /opt/thesis-lab/nginx/certs/root_ca.crt
+# Enrollment password path is the IN-CONTAINER path of the /usr/local/bin/step
+# docker wrapper (it bind-mounts step-ca/secrets -> /secrets:ro). Never leaves
+# the controller — only the controller runs `step ca sign`.
+enrollment_pw_in_container: /secrets/node-enrollment-password.txt
+csr_workdir: /tmp/thesis-ansible-csr   # controller-side scratch for CSR signing
