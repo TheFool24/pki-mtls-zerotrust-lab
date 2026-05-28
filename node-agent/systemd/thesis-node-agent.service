@@ -1,0 +1,33 @@
+[Unit]
+Description=Thesis Lab Node Agent — heartbeat + mTLS metrics endpoint
+Documentation=https://github.com/TheFool24/pki-mtls-zerotrust-lab
+Wants=network-online.target
+After=network-online.target
+StartLimitIntervalSec=300
+StartLimitBurst=10
+
+[Service]
+Type=simple
+User=jojo
+Group=jojo
+EnvironmentFile=/etc/thesis-lab/node-config/agent.env
+WorkingDirectory=/opt/thesis-node
+ExecStart=/opt/thesis-node/venv/bin/python -m app.main
+Restart=on-failure
+RestartSec=10s
+StandardOutput=journal
+StandardError=journal
+
+# Security hardening — agent reads certs (RO) + listens on :9100; no other FS access needed.
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=read-only
+PrivateTmp=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+LockPersonality=true
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,8 @@
+# Pinned to what is installed in /opt/thesis-node/venv on the Pi fleet.
+httpx==0.28.1
+aiohttp==3.13.5
+structlog==24.4.0
+prometheus-client==0.21.1
+psutil==6.1.0
+pydantic==2.13.4
+pydantic-settings==2.14.1

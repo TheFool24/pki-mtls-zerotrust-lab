@@ -1,11 +1,11 @@
 [Unit]
-Description=Renew thesis lab controller certificate
+Description=Renew thesis lab controller-side service certs (controller + prometheus)
 Wants=docker.service
 After=docker.service
 
 [Service]
 Type=oneshot
 User=jojo
-ExecStart=/opt/thesis-lab/scripts/renew-controller-cert.sh
+ExecStart=/opt/thesis-lab/scripts/renew-certs.sh
 StandardOutput=append:/var/log/thesis-cert-renew.log
 StandardError=append:/var/log/thesis-cert-renew.log

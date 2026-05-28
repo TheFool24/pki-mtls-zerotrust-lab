@@ -43,3 +43,27 @@ scrape_configs:
   # would show as DOWN). step-ca liveness is observed via its Docker healthcheck
   # and cAdvisor container metrics instead. If dedicated up/down probing is
   # wanted later, add a blackbox-exporter job (proper tool for HTTP health probes).
+
+  # ── Lab node fleet (Step 8C) ──
+  # Scraped over mTLS — Prometheus presents a service-scraper-issued leaf;
+  # the node agent verifies it against the trust bundle AND checks the CN
+  # against THESIS_ALLOWED_SCRAPER_CNS (defense-in-depth: a compromised node
+  # cert with a valid chain still cannot scrape neighbor metrics).
+  - job_name: thesis-nodes
+    scheme: https
+    scrape_interval: 30s
+    tls_config:
+      cert_file: /etc/thesis-certs/client.crt
+      key_file: /etc/thesis-certs/client.key
+      ca_file: /etc/thesis-certs/ca-trust.crt
+      # Pi nodes are outside the Docker bridge — addressed by IP. server_name
+      # tells Prometheus to verify the received cert against this FQDN (which
+      # is a SAN on the node leaf cert).
+      server_name: pi-01.thesis.local
+    static_configs:
+      - targets: ["10.50.30.11:9100"]
+        labels:
+          node_id: pi-01
+          tier: node
+          role: valid
+          common_name: pi-01.thesis.local

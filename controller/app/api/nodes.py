@@ -65,20 +65,20 @@ async def register_node(
             detail="Cannot register a node on behalf of another identity",
         )
 
-    # Check for existing node
+    # Check for existing node. Idempotent re-registration by the same actor
+    # (the auth check above already enforced identity == payload.common_name)
+    # is operational noise — kept silent so the audit log stays a security
+    # artifact, not a fleet-restart log. The CN-mismatch case is caught by
+    # the AUTH_FAILURE record above before we ever get here.
     existing = await session.execute(
         select(Node).where(Node.node_id == payload.node_id)
     )
     if existing.scalar_one_or_none():
-        await record_event(
-            session,
-            actor_cn=identity.common_name,
-            action=AuditAction.NODE_REGISTER,
-            target=f"node:{payload.node_id}",
-            result=AuditResult.REJECTED,
-            details={"reason": "node already registered"},
+        log.info(
+            "node_register_duplicate",
+            actor=identity.common_name,
+            node_id=payload.node_id,
         )
-        await session.commit()
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail=f"Node '{payload.node_id}' is already registered",
@@ -159,9 +159,13 @@ async def heartbeat(
             detail="Cannot heartbeat on behalf of another node",
         )
 
-    # Update state if transitioning out of onboarding
+    # State transition is a security-relevant event (onboarding→active means a
+    # newly-enrolled node has confirmed liveness); routine heartbeats are
+    # operational telemetry only. Keeping the audit table clean: only state
+    # changes get a row, freshness flows through metrics + structlog.
     now = datetime.now(timezone.utc)
     state_changed = False
+    prior_state = node.state
     if node.state == NodeState.ONBOARDING:
         node.state = NodeState.ACTIVE
         state_changed = True
@@ -170,18 +174,28 @@ async def heartbeat(
     node.updated_at = now
     session.add(node)
 
-    await record_event(
-        session,
-        actor_cn=identity.common_name,
-        action=AuditAction.NODE_HEARTBEAT,
-        target=f"node:{node.node_id}",
-        result=AuditResult.SUCCESS,
-        details={
-            "state": node.state.value,
-            "state_changed": state_changed,
-            "note": payload.status_note,
-        },
-    )
+    if state_changed:
+        await record_event(
+            session,
+            actor_cn=identity.common_name,
+            action=AuditAction.NODE_STATE_CHANGE,
+            target=f"node:{node.node_id}",
+            result=AuditResult.SUCCESS,
+            details={
+                "from": prior_state.value,
+                "to": node.state.value,
+                "trigger": "heartbeat",
+            },
+        )
+    else:
+        # Routine heartbeat — structured log only (Loki captures), no audit row.
+        log.info(
+            "node_heartbeat",
+            node_id=node.node_id,
+            actor=identity.common_name,
+            state=node.state.value,
+            note=payload.status_note,
+        )
 
     await session.commit()
     await session.refresh(node)

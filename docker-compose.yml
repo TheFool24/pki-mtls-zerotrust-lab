@@ -115,6 +115,13 @@ services:
     volumes:
       - ./monitoring/prometheus:/etc/prometheus:ro
       - prometheus-data:/prometheus
+      # Client cert for mTLS scrape of node metrics (issued via service-scraper
+      # provisioner — see scripts/renew-certs.sh for renewal). Mounted at a
+      # separate path because /etc/prometheus is bind-mounted read-only above
+      # and cannot have subdirectories created at runtime.
+      - ./step-ca/issued/prometheus/prometheus.crt:/etc/thesis-certs/client.crt:ro
+      - ./step-ca/issued/prometheus/prometheus.key:/etc/thesis-certs/client.key:ro
+      - ./nginx/certs/ca-trust.crt:/etc/thesis-certs/ca-trust.crt:ro
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
       - "--storage.tsdb.path=/prometheus"
