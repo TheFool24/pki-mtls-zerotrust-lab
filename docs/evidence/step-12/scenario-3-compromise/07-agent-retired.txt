@@ -1,0 +1,9 @@
+=== 07 — RETIREMENT: stop + disable agent and renewal timer on pi-03 ===
+captured: 2026-05-30T22:34:13Z
+
+Removed "/etc/systemd/system/multi-user.target.wants/thesis-node-agent.service".
+Removed "/etc/systemd/system/timers.target.wants/thesis-cert-renew.timer".
+--- post-retirement service state ---
+agent:       inactive (disabled)
+renew-timer: inactive (disabled)
+host:        pi-03 (still up — inspectable for forensics)

@@ -72,3 +72,9 @@ scrape_configs:
           tier: node
           role: valid
           common_name: pi-02.thesis.local
+      - targets: ["10.50.30.13:9100"]
+        labels:
+          node_id: pi-03
+          tier: node
+          role: valid
+          common_name: pi-03.thesis.local

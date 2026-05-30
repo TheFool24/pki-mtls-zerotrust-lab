@@ -1,0 +1,13 @@
+=== 04 — AUDIT SNAPSHOT: controller audit rows for actor_cn=pi-03 ===
+captured: 2026-05-30T22:31:25Z
+
+Expect TWO controller-side rejections (vectors A + B). Vector C is rejected at
+pi-01's metrics listener (distributed enforcement); evidence lives in pi-01's
+agent journal (see 03c). The CONTROL VECTOR success is silent in audit by 8C
+design — its evidence is the 200 in 02-control-legitimate.txt.
+
+--- controller audit rows (newest first) ---
+{"id": 69, "ts": "2026-05-30 22:31:00.701092", "action": "auth.failure", "result": "rejected", "target": "node:pi-01", "details": {"reason": "heartbeat from non-matching identity", "claimed_node": "pi-01"}}
+{"id": 68, "ts": "2026-05-30 22:31:00.633258", "action": "auth.failure", "result": "rejected", "target": "node:pi-99", "details": {"reason": "actor not authorized to register this node"}}
+{"id": 67, "ts": "2026-05-30 22:27:59.235226", "action": "node.state_change", "result": "success", "target": "node:pi-03", "details": {"from": "onboarding", "to": "active", "trigger": "heartbeat"}}
+{"id": 66, "ts": "2026-05-30 22:27:59.195064", "action": "node.register", "result": "success", "target": "node:pi-03", "details": {"role": "valid", "ip": "10.50.30.13"}}

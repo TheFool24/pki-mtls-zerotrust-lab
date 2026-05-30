@@ -1,0 +1,7 @@
+=== 05 — REVOKE pi-03 cert (admin-provisioner revoke token) ===
+captured: 2026-05-30T22:31:51Z
+serial: 43821682667930930291193249552878329969
+method: step ca token --revoke (admin provisioner) -> step ca revoke --token
+--- output ---
+[32m[32m✔[0m [1mCA[0m[1m:[0m https://ca.thesis.local:9000
+Certificate with Serial Number 43821682667930930291193249552878329969 has been revoked.

@@ -1,0 +1,7 @@
+=== 01 — BASELINE: Pi-03 healthy ===
+captured: 2026-05-30T22:30:04Z
+--- agent recent heartbeats ---
+HTTP Request: POST https://controller.thesis.local/api/v1/nodes/pi-03/heartbeat "HTTP/1.1 200 OK"
+HTTP Request: POST https://controller.thesis.local/api/v1/nodes/pi-03/heartbeat "HTTP/1.1 200 OK"
+--- controller view ---
+pi-03: state=active role=valid last_hb=2026-05-30 22:30:05.978828

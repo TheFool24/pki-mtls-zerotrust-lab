@@ -1,0 +1,10 @@
+=== 03c — ATTACK VECTOR C: scrape pi-01's metrics endpoint with pi-03's cert ===
+captured: 2026-05-30T22:31:00Z
+Defense layer: CN ALLOWLIST at pi-01's metrics listener (THESIS_ALLOWED_SCRAPER_CNS)
+Rejection is enforced at the NODE (distributed enforcement) — not in the controller audit table.
+--- request ---
+GET https://pi-01.thesis.local:9100/metrics  presenting pi-03's cert
+--- response ---
+HTTP 403
+--- pi-01 agent log (the metrics_scrape_rejected event) ---
+{"peer_cn": "pi-03.thesis.local", "allowed": ["prometheus.thesis.local"], "peer": "10.50.20.200", "event": "metrics_scrape_rejected", "level": "warning", "timestamp": "2026-05-30T22:31:00.759460Z"}

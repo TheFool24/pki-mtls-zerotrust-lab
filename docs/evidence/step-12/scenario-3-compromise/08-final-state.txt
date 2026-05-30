@@ -1,0 +1,14 @@
+=== 08 — FINAL STATE: pi-03 retired, dashboards reflect retirement ===
+captured: 2026-05-30T22:34:39Z
+
+--- controller view: DB row retained (history); last_hb FROZEN at last legitimate heartbeat before retirement ---
+pi-03: state=active role=valid last_hb=2026-05-30 22:32:48.025013
+
+--- Prometheus targets (one scrape cycle past retirement — pi-03 now DOWN, evidence not regression; pi-01/pi-02 unaffected) ---
+  pi-01  10.50.30.11:9100  health=up  
+  pi-02  10.50.30.12:9100  health=up  
+  pi-03  10.50.30.13:9100  health=down  Get "https://10.50.30.13:9100/metrics": dial tcp 1
+
+--- old serial (revoked) is in the CRL; new identity would need re-enrollment under a NEW node_id ---
+pi-03 old serial in CRL: True
+total revoked serials : 2

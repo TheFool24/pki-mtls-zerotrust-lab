@@ -1,0 +1,8 @@
+=== 03b — ATTACK VECTOR B: heartbeat impersonating pi-01 ===
+captured: 2026-05-30T22:31:00Z
+Defense layer: AUTHORIZATION (CN-mismatch — heartbeat from non-matching identity)
+--- request ---
+POST /api/v1/nodes/pi-01/heartbeat (with pi-03's cert — CN!=target)
+--- response ---
+{"detail":"Cannot heartbeat on behalf of another node"}
+HTTP 403

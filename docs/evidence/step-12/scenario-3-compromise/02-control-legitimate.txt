@@ -1,0 +1,11 @@
+=== 02 — CONTROL VECTOR: pi-03 acts AS pi-03 (legitimate scope) ===
+captured: 2026-05-30T22:30:32Z
+--- request ---
+POST /api/v1/nodes/pi-03/heartbeat (using pi-03's own cert+key)
+--- response ---
+{"node_id":"pi-03","common_name":"pi-03.thesis.local","role":"valid","state":"active","ip_address":"10.50.30.13","notes":null,"id":6,"created_at":"2026-05-30T22:27:59.189579","updated_at":"2026-05-30T22:30:32.883773","last_heartbeat_at":"2026-05-30T22:30:32.883773"}
+HTTP 200
+--- note ---
+Success is INTENTIONALLY SILENT in the audit table (8C design choice: audit
+table is a security artifact, not fleet telemetry). The 200 here is the evidence;
+successful heartbeats produce no audit row by design.

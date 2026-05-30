@@ -1,0 +1,8 @@
+=== 03a — ATTACK VECTOR A: register fabricated node 'pi-99' ===
+captured: 2026-05-30T22:31:00Z
+Defense layer: IDENTITY/authorization (actor not authorized to register another)
+--- request ---
+POST /api/v1/nodes  body={"node_id":"pi-99","common_name":"pi-99.thesis.local","role":"compromised"}
+--- response ---
+{"detail":"Cannot register a node on behalf of another identity"}
+HTTP 403

@@ -1,0 +1,23 @@
+=== 06 — POST-REVOKE: even legitimate scope rejected with UNIFORM reason ===
+captured: 2026-05-30T22:33:33Z
+
+Pre-revoke: each vector hit a DIFFERENT layer with a DISTINCT reason.
+Post-revoke: ALL attempts (incl. previously-legitimate self-heartbeat) hit
+the revocation check FIRST and fail with the SAME reason — 'certificate revoked'.
+Two distinct mechanisms, cleanly sequenced: scoped-authz pre-revoke, revocation post.
+
+--- same POST /api/v1/nodes/pi-03/heartbeat with pi-03's cert+key (the control vector) ---
+{"detail":"Client certificate has been revoked"}
+HTTP 403
+
+--- audit row for the revocation rejection ---
+{
+  "id": 71,
+  "action": "auth.failure",
+  "result": "rejected",
+  "target": "cert:20f7bfc41fab80c26e989d3faa3ce071",
+  "details": {
+    "reason": "certificate revoked",
+    "serial": "20f7bfc41fab80c26e989d3faa3ce071"
+  }
+}
