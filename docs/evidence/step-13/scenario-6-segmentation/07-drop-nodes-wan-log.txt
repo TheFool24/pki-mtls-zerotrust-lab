@@ -1,0 +1,25 @@
+# MikroTik firewall log: DROP-NODES-WAN entries fired during Pi-01 curl attempt
+# Captured 2026-06-02 ~15:00 UTC from admin@thesis-router via /log print
+#
+# Context: same Pi-01 -> ports.ubuntu.com curl that succeeded in file 04
+# (rule 23 active) and timed out in file 06 (rule 23 removed). These log lines
+# are rule 24 (DROP-NODES-WAN) actually firing for the first time.
+#
+# Notes on the entries:
+# - Source: 10.50.30.11 (Pi-01), MAC d8:3a:dd:21:5d:09
+# - Destinations: 104.20.28.246 and 172.66.152.176 — both Cloudflare ranges
+#   (ports.ubuntu.com resolves through Cloudflare's CDN). curl retried across
+#   both DNS answers during the 8-second timeout window.
+# - Protocol: TCP SYN (connection-state:new) — packets dropped before any
+#   handshake completed. No bytes ever left the LAN side of the router.
+# - 8 drops over 8 seconds = exact match to curl's -m8 timeout window.
+
+[admin@thesis-router] > /log print where message~"DROP-NODES-WAN"
+ 2026-06-02 14:59:27 firewall,info DROP-NODES-WAN forward: in:vlan30-nodes out:ether1, connection-state:new src-mac d8:3a:dd:21:5d:09, proto TCP (SYN), 10.50.30.11:57850->104.20.28.246:80, len 60
+ 2026-06-02 14:59:28 firewall,info DROP-NODES-WAN forward: in:vlan30-nodes out:ether1, connection-state:new src-mac d8:3a:dd:21:5d:09, proto TCP (SYN), 10.50.30.11:57850->104.20.28.246:80, len 60
+ 2026-06-02 14:59:29 firewall,info DROP-NODES-WAN forward: in:vlan30-nodes out:ether1, connection-state:new src-mac d8:3a:dd:21:5d:09, proto TCP (SYN), 10.50.30.11:57850->104.20.28.246:80, len 60
+ 2026-06-02 14:59:30 firewall,info DROP-NODES-WAN forward: in:vlan30-nodes out:ether1, connection-state:new src-mac d8:3a:dd:21:5d:09, proto TCP (SYN), 10.50.30.11:57850->104.20.28.246:80, len 60
+ 2026-06-02 14:59:31 firewall,info DROP-NODES-WAN forward: in:vlan30-nodes out:ether1, connection-state:new src-mac d8:3a:dd:21:5d:09, proto TCP (SYN), 10.50.30.11:57764->172.66.152.176:80, len 60
+ 2026-06-02 14:59:32 firewall,info DROP-NODES-WAN forward: in:vlan30-nodes out:ether1, connection-state:new src-mac d8:3a:dd:21:5d:09, proto TCP (SYN), 10.50.30.11:57764->172.66.152.176:80, len 60
+ 2026-06-02 14:59:33 firewall,info DROP-NODES-WAN forward: in:vlan30-nodes out:ether1, connection-state:new src-mac d8:3a:dd:21:5d:09, proto TCP (SYN), 10.50.30.11:57764->172.66.152.176:80, len 60
+ 2026-06-02 14:59:34 firewall,info DROP-NODES-WAN forward: in:vlan30-nodes out:ether1, connection-state:new src-mac d8:3a:dd:21:5d:09, proto TCP (SYN), 10.50.30.11:57764->172.66.152.176:80, len 60

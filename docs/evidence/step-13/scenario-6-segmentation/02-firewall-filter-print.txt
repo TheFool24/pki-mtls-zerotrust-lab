@@ -1,0 +1,110 @@
+# Captured 2026-06-02 14:37 UTC from admin@thesis-router via SSH from VLAN 10 mgmt
+# RouterOS 7.19.6
+# Numbered listing of /ip firewall filter rules (35 total, indices 0-34)
+
+[admin@thesis-router] > /ip firewall filter print
+Flags: X - disabled, I - invalid; D - dynamic
+ 0    ;;; Allow established/related to router
+      chain=input action=accept connection-state=established,related
+
+ 1    ;;; Drop invalid to router
+      chain=input action=drop connection-state=invalid
+
+ 2    ;;; Allow established/related forward
+      chain=forward action=accept connection-state=established,related
+
+ 3    ;;; Drop invalid forward
+      chain=forward action=drop connection-state=invalid
+
+ 4    ;;; Allow ICMP from mgmt
+      chain=input action=accept protocol=icmp in-interface=vlan10-mgmt
+
+ 5    ;;; Allow SSH from mgmt
+      chain=input action=accept protocol=tcp in-interface=vlan10-mgmt dst-port=22
+
+ 6    ;;; Allow Winbox from mgmt
+      chain=input action=accept protocol=tcp in-interface=vlan10-mgmt dst-port=8291
+
+ 7    ;;; Allow HTTPS from mgmt
+      chain=input action=accept protocol=tcp in-interface=vlan10-mgmt dst-port=443
+
+ 8    ;;; Allow DNS from mgmt
+      chain=input action=accept protocol=udp in-interface=vlan10-mgmt dst-port=53
+
+ 9    ;;; Allow DNS from controller
+      chain=input action=accept protocol=udp in-interface=vlan20-ctrl dst-port=53
+
+10    ;;; Allow DNS from nodes
+      chain=input action=accept protocol=udp in-interface=vlan30-nodes dst-port=53
+
+11    ;;; Allow DNS TCP from mgmt
+      chain=input action=accept protocol=tcp in-interface=vlan10-mgmt dst-port=53
+
+12    ;;; Allow DNS TCP from controller
+      chain=input action=accept protocol=tcp in-interface=vlan20-ctrl dst-port=53
+
+13    ;;; Allow DNS TCP from nodes
+      chain=input action=accept protocol=tcp in-interface=vlan30-nodes dst-port=53
+
+14    ;;; Allow NTP from mgmt
+      chain=input action=accept protocol=udp in-interface=vlan10-mgmt dst-port=123
+
+15    ;;; Allow NTP from controller
+      chain=input action=accept protocol=udp in-interface=vlan20-ctrl dst-port=123
+
+16    ;;; Allow NTP from nodes
+      chain=input action=accept protocol=udp in-interface=vlan30-nodes dst-port=123
+
+17    ;;; Drop everything from WAN to router
+      chain=input action=drop in-interface=ether1
+
+18    ;;; Allow ICMP from controller
+      chain=input action=accept protocol=icmp in-interface=vlan20-ctrl
+
+19    ;;; Allow ICMP from nodes
+      chain=input action=accept protocol=icmp in-interface=vlan30-nodes
+
+20    ;;; Drop all other input - default deny
+      chain=input action=drop
+
+21    ;;; Allow mgmt to internet
+      chain=forward action=accept in-interface=vlan10-mgmt out-interface=ether1
+
+22    ;;; Allow controller to internet (dev mode)
+      chain=forward action=accept in-interface=vlan20-ctrl out-interface=ether1
+
+23    ;;; PROVISIONING: VLAN 30 to WAN - REMOVE BEFORE DEPLOYMENT
+      chain=forward action=accept in-interface=vlan30-nodes out-interface=ether1
+
+24    ;;; DROP nodes to internet (Zero Trust)
+      chain=forward action=drop in-interface=vlan30-nodes out-interface=ether1 log=yes log-prefix="DROP-NODES-WAN"
+
+25    ;;; Allow SSH mgmt to controller
+      chain=forward action=accept protocol=tcp in-interface=vlan10-mgmt out-interface=vlan20-ctrl dst-port=22
+
+26    ;;; Allow HTTPS mgmt to controller
+      chain=forward action=accept protocol=tcp in-interface=vlan10-mgmt out-interface=vlan20-ctrl dst-port=443
+
+27    ;;; Allow ICMP mgmt to controller
+      chain=forward action=accept protocol=icmp in-interface=vlan10-mgmt out-interface=vlan20-ctrl
+
+28    ;;; Allow mTLS controller to nodes
+      chain=forward action=accept protocol=tcp in-interface=vlan20-ctrl out-interface=vlan30-nodes dst-port=443
+
+29    ;;; Allow ICMP controller to nodes
+      chain=forward action=accept protocol=icmp in-interface=vlan20-ctrl out-interface=vlan30-nodes
+
+30    ;;; Allow mTLS nodes to controller
+      chain=forward action=accept protocol=tcp in-interface=vlan30-nodes out-interface=vlan20-ctrl dst-port=443
+
+31    ;;; Allow enrollment nodes to step-ca
+      chain=forward action=accept protocol=tcp in-interface=vlan30-nodes out-interface=vlan20-ctrl dst-port=9000
+
+32    ;;; Allow SSH controller to nodes
+      chain=forward action=accept protocol=tcp in-interface=vlan20-ctrl out-interface=vlan30-nodes dst-port=22
+
+33    ;;; Allow metrics scraping controller to nodes (8C)
+      chain=forward action=accept protocol=tcp in-interface=vlan20-ctrl out-interface=vlan30-nodes dst-port=9100
+
+34    ;;; Drop all other forward - default deny
+      chain=forward action=drop log=yes log-prefix="DROP-FORWARD"

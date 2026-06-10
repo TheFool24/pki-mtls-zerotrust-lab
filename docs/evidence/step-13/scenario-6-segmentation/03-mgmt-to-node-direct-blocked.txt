@@ -1,0 +1,10 @@
+# Test: direct SSH from Windows PC (VLAN 10 mgmt) to Pi-01 (VLAN 30 nodes)
+# Expected: TIMEOUT (no allow rule for vlan10-mgmt -> vlan30-nodes; falls to rule 34 default-deny DROP-FORWARD)
+# Captured: 2026-06-02 ~14:38 UTC
+
+PS C:\Users\Jojo> ssh -o ConnectTimeout=5 jojo@10.50.30.11
+ssh: connect to host 10.50.30.11 port 22: Connection timed out
+
+# Result: Connection timed out (TCP SYN dropped silently)
+# Pi-01 SSH IS running (verified via ProxyJump test, see 04-mgmt-to-node-via-proxyjump.txt).
+# Timeout is firewall-side at the MikroTik (silent drop of unmatched forward traffic).

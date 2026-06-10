@@ -1,0 +1,57 @@
+# Test: SSH from Windows PC (VLAN 10) to Pi-01 (VLAN 30) via controller (VLAN 20) as ProxyJump
+# Expected: SUCCESS (mgmt->controller via rule 25, controller->node via rule 32)
+# Captured: 2026-06-02 ~14:38 UTC
+# Note: also confirms NODE->WAN currently still allowed (rule 23 PROVISIONING active)
+
+PS C:\Users\Jojo> ssh -J jojo@10.50.20.200 jojo@10.50.30.11 "curl -m8 http://ports.ubuntu.com/ 2>&1 || echo 'WAN BLOCKED'"
+Enter passphrase for key 'C:\Users\Jojo/.ssh/id_ed25519':
+The authenticity of host '10.50.30.11 (<no hostip for proxy command>)' can't be established.
+ECDSA key fingerprint is SHA256:2ZnaZfIxO0jsNa+46HmmPcrqhuo0UlDrZroXl3KCE5g.
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+Warning: Permanently added '10.50.30.11' (ECDSA) to the list of known hosts.
+Enter passphrase for key 'C:\Users\Jojo/.ssh/id_ed25519':
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100  1885    0  1885    0     0  11360      0 --:--:-- --:--:-- --:--:-- 11424
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+ <head>
+  <title>Index of /</title>
+ </head>
+ <body>
+<h1>Index of /</h1>
+  <table>
+   <tr><th valign="top"><img src="/icons/blank.gif" alt="[ICO]"></th><th><a href="?C=N;O=D">Name</a></th><th><a href="?C=M;O=A">Last modified</a></th><th><a href="?C=S;O=A">Size</a></th></tr>
+   <tr><th colspan="4"><hr></th></tr>
+<tr><td valign="top"><img src="/icons/unknown.gif" alt="[   ]"></td><td><a href="Archive-Update-in-Progress-ports-prod-ubuntu-ports-ps7-02">Archive-Update-in-Progress-ports-prod-ubuntu-ports-ps7-02</a></td><td align="right">2026-06-02 11:32  </td><td align="right">  1 </td></tr>
+<tr><td valign="top"><img src="/icons/folder.gif" alt="[DIR]"></td><td><a href="dists/">dists/</a></td><td align="right">2026-04-24 09:23  </td><td align="right">  - </td></tr>
+<tr><td valign="top"><img src="/icons/folder.gif" alt="[DIR]"></td><td><a href="indices/">indices/</a></td><td align="right">2026-06-02 11:11  </td><td align="right">  - </td></tr>
+<tr><td valign="top"><img src="/icons/compressed.gif" alt="[   ]"></td><td><a href="ls-lR.gz">ls-lR.gz</a></td><td align="right">2026-06-02 11:14  </td><td align="right"> 36M</td></tr>
+<tr><td valign="top"><img src="/icons/folder.gif" alt="[DIR]"></td><td><a href="pool/">pool/</a></td><td align="right">2010-02-27 06:30  </td><td align="right">  - </td></tr>
+<tr><td valign="top"><img src="/icons/folder.gif" alt="[DIR]"></td><td><a href="project/">project/</a></td><td align="right">2024-11-24 21:31  </td><td align="right">  - </td></tr>
+<tr><td valign="top"><img src="/icons/folder.gif" alt="[DIR]"></td><td><a href="ubuntu-ports/">ubuntu-ports/</a></td><td align="right">2026-06-02 11:29  </td><td align="right">  - </td></tr>
+   <tr><th colspan="4"><hr></th></tr>
+</table>
+<address>Apache/2.4.58 (Ubuntu) Server at ports.ubuntu.com Port 80</address>
+</body></html>
+
+# This test demonstrates THREE facts simultaneously:
+#
+# 1. mgmt -> controller -> node ProxyJump path WORKS (rules 25 + 32 allow it)
+#    Pi-01 SSH was reachable via the chain, confirming Pi-01 SSH daemon is up
+#    and the indirect path is the only sanctioned mgmt->node route.
+#
+# 2. node -> WAN is CURRENTLY PERMITTED because rule 23
+#    (PROVISIONING: VLAN 30 to WAN - REMOVE BEFORE DEPLOYMENT) is active.
+#    curl returned HTTP 200 with full ports.ubuntu.com directory listing.
+#    Rule 24 (DROP-NODES-WAN) never fires because MikroTik first-match-wins
+#    and rule 23 ACCEPT precedes rule 24 DROP.
+#
+# 3. The air-gap mechanism (rule 24) EXISTS but is neutralized by rule 23.
+#    Air-gap activation = remove rule 23. After removal, the same curl
+#    will time out and rule 24's DROP-NODES-WAN prefix will appear in
+#    /log print.
+#
+# Defense-day procedure (per pre-defense checklist):
+#   /ip firewall filter remove [find comment="PROVISIONING: VLAN 30 to WAN - REMOVE BEFORE DEPLOYMENT"]
+#   then re-run the curl test from Pi -> expected: connect timeout
