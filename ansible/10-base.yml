@@ -7,6 +7,17 @@
   gather_facts: true
   become: true
   tasks:
+    # The cloud-init override is held immutable (chattr +i) because cloud-init
+    # has been observed to wipe its own drop-in twice (2026-05-31, 2026-06-09)
+    # — see docs/setup-notes/08-step-8-node-fleet.md. Drop the bit before the
+    # copy task can write, then re-apply it after. Both chattr calls are
+    # idempotent: -i on a non-immutable (or absent) file is harmless; +i on an
+    # already-immutable file is harmless.
+    - name: Drop immutable bit on cloud-init hosts override (so copy can write)
+      command: chattr -i /etc/cloud/cloud.cfg.d/99-thesis-hosts.cfg
+      failed_when: false
+      changed_when: false
+
     - name: Stop cloud-init from managing /etc/hosts (else it wipes our entries)
       copy:
         dest: /etc/cloud/cloud.cfg.d/99-thesis-hosts.cfg
@@ -14,6 +25,10 @@
         owner: root
         group: root
         mode: "0644"
+
+    - name: Lock cloud-init hosts override against cloud-init wipe (chattr +i)
+      command: chattr +i /etc/cloud/cloud.cfg.d/99-thesis-hosts.cfg
+      changed_when: false
 
     - name: Controller + CA /etc/hosts entries
       blockinfile:

@@ -210,6 +210,24 @@ the Ansible playbook (Pi-02/03/04).
 - **Pi can't resolve `controller.thesis.local`** until an `/etc/hosts` entry is
   added (persists now because `manage_etc_hosts: false`). Pi also doesn't resolve
   its own FQDN — local mTLS tests need `curl --resolve`.
+- **`manage_etc_hosts: false` is necessary but not sufficient** — discovered on
+  2026-05-31 during a sanity sweep that pi-01 and pi-02 had both lost their
+  controller `/etc/hosts` entries despite the cloud-init override being in place.
+  Agents were stuck in silent `register_failed: Temporary failure in name
+  resolution` retry loops; `last_heartbeat_at` had been stale for ~2 days
+  without any obvious failure signal. Recurred on 2026-06-09 (same symptom,
+  same nodes): the override file `/etc/cloud/cloud.cfg.d/99-thesis-hosts.cfg`
+  itself had vanished — cloud-init reverted to its default `manage_etc_hosts: true`
+  and rewrote `/etc/hosts` from template, dropping the controller entry.
+  **Shipped fix (2026-06-09)**: after restoring the override, set the
+  immutable bit so cloud-init (and anything short of `chattr -i`) cannot
+  delete or overwrite it:
+  `sudo chattr +i /etc/cloud/cloud.cfg.d/99-thesis-hosts.cfg`.
+  Verified with `lsattr` showing the `i` flag and a negative test
+  (`sudo rm -f` returns `Operation not permitted`). Applied to pi-01 and pi-02
+  on 2026-06-09 14:37 UTC. **Ansible note**: the `10-base.yml` play must `chattr -i`
+  before templating this file and `chattr +i` after — otherwise re-running base
+  provisioning will fail with EPERM. Tracked as a 10-base.yml todo.
 - **psutil `cpu_percent(interval=None)`** returns 0.0 on the first call (no
   baseline); real values appear from the second scrape on.
 

@@ -10,6 +10,19 @@ Status legend: ☐ todo · ☑ done · ⏳ deferred-by-design
 
 ## A. Air-gap blockers (things that reach the public internet)
 
+- ☑ **MikroTik provisioning rule (VLAN 30 → WAN) — REMOVED 2026-06-02.**
+  Filter rule formerly at index 23 (comment:
+  `PROVISIONING: VLAN 30 to WAN - REMOVE BEFORE DEPLOYMENT`) sat above the
+  `DROP-NODES-WAN` rule and neutralized the node air-gap (first-match-wins).
+  Removed via `/ip firewall filter remove [find comment="PROVISIONING: VLAN 30 to WAN - REMOVE BEFORE DEPLOYMENT"]`
+  on 2026-06-02 ~14:55 UTC. Air-gap for VLAN 30 (nodes) is now active and
+  enforced by rule 23 (post-renumber): `DROP nodes to internet (Zero Trust)`,
+  log-prefix `DROP-NODES-WAN`. Verified end-to-end: `curl http://ports.ubuntu.com/`
+  from Pi-01 → exit 28 timeout; 8 DROP-NODES-WAN log entries captured
+  (`docs/evidence/step-13/scenario-6-segmentation/06`, `07`). Addresses ИС-6.
+  **Note for Сценарий 5**: Pi-04 live onboarding now requires either
+  pre-staging the venv, an offline wheel cache, or temporary re-add of the
+  provisioning rule during the onboarding window.
 - ☐ **Public NTP fallback.** `/etc/chrony/conf.d/thesis-lab.conf` has
   `pool 2.bg.pool.ntp.org iburst`. For air-gap, remove it so only the MikroTik
   (`server 10.50.20.1 iburst prefer`) is used, then `sudo systemctl restart chrony`
@@ -60,6 +73,15 @@ Status legend: ☐ todo · ☑ done · ⏳ deferred-by-design
 ## D. Defense-day verification (run the morning of)
 
 - ☐ All 9 containers healthy: `cd /opt/thesis-lab && docker compose ps`
+- ☐ **nginx + step-ca actually reachable externally** (NOT just "healthy"):
+  `curl -ksI https://10.50.20.200/health | head -1` → expect `HTTP/2 200`;
+  `curl -ksI https://10.50.20.200:9000/health | head -1` → expect a TLS
+  response, not connection-refused. The container healthcheck hits localhost
+  inside the container; on 2026-06-06 a boot-time port-bind race left both
+  containers reporting "healthy" while having no docker network and no host
+  port bindings. The systemd drop-in
+  `/etc/systemd/system/docker.service.d/wait-for-lab-ip.conf` blocks docker
+  start until 10.50.20.200 is on eno1, but verify externally regardless.
 - ☐ Controller leaf cert valid (auto-renew working): check
   `step certificate inspect step-ca/issued/controller/controller.crt --short`
 - ☐ Operator browser cert valid (expires **2026-08-20**) — re-issue if defense is
