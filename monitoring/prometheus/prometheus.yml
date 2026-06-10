@@ -38,6 +38,29 @@ scrape_configs:
           tier: infrastructure
     metrics_path: /metrics
 
+  # Loki — log TSDB. Native /metrics on port 3100; no config flip needed.
+  # Added 2026-06-09 to broaden Service Health panel coverage (Гл. 4).
+  - job_name: loki
+    static_configs:
+      - targets: ["loki:3100"]
+        labels:
+          tier: observability
+    metrics_path: /metrics
+
+  # Promtail — log shipper. Native /metrics on port 9080.
+  # Added 2026-06-09 alongside Loki for parity.
+  - job_name: promtail
+    static_configs:
+      - targets: ["promtail:9080"]
+        labels:
+          tier: observability
+    metrics_path: /metrics
+
+  # NOTE: Grafana would be a third observability scrape target, but its
+  # /metrics endpoint is disabled by default (grafana.ini [metrics] enabled
+  # is commented; default is off). Enabling requires GF_METRICS_ENABLED=true
+  # in compose env + a container recreate. Deferred pending a low-risk window.
+
   # NOTE: step-ca does NOT expose a Prometheus metrics endpoint. Its /health
   # returns JSON, which Prometheus can't parse as exposition format (the target
   # would show as DOWN). step-ca liveness is observed via its Docker healthcheck
