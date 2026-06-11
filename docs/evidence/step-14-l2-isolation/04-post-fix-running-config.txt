@@ -1,0 +1,146 @@
+# Cisco Catalyst 3560 — running-config AFTER switchport protected on Fa0/2-5
+# Captured: 2026-06-11 19:14 EEST (16:14 UTC)
+#
+# Diff vs pre-fix (06-10 capture): four added "switchport protected" lines
+# inside interface FastEthernet0/2..0/5 stanzas. All other config unchanged.
+
+thesis-switch#show running-config
+Building configuration...
+
+Current configuration : 4249 bytes
+!
+! Last configuration change at 19:14:38 EEST Thu Jun 11 2026 by admin
+! NVRAM config last updated at 19:14:41 EEST Thu Jun 11 2026 by admin
+!
+version 12.2
+no service pad
+service timestamps debug datetime msec
+service timestamps log datetime msec
+service password-encryption
+!
+hostname thesis-switch
+!
+boot-start-marker
+boot-end-marker
+!
+enable secret 5 $1$tXpU$0QCOITKwavo99vOZolhMX.
+!
+username admin privilege 15 secret 5 $1$I3EE$X4m3W1LBOm8H6jzzZ5dSl1
+!
+!
+no aaa new-model
+clock timezone EET 2
+clock summer-time EEST recurring last Sun Mar 3:00 last Sun Oct 4:00
+system mtu routing 1500
+no ip domain-lookup
+ip domain-name thesis.local
+!
+crypto pki trustpoint TP-self-signed-334671104
+ enrollment selfsigned
+ subject-name cn=IOS-Self-Signed-Certificate-334671104
+ revocation-check none
+ rsakeypair TP-self-signed-334671104
+!
+crypto pki certificate chain TP-self-signed-334671104
+ certificate self-signed 01
+  [self-signed device cert chain — 20 lines of hex, identical to pre-fix capture]
+  quit
+!
+spanning-tree mode pvst
+spanning-tree extend system-id
+!
+vlan internal allocation policy ascending
+!
+ip ssh version 2
+!
+interface FastEthernet0/1
+ description Controller-Ubuntu-Desktop
+ switchport access vlan 20
+ switchport mode access
+ spanning-tree portfast
+!
+interface FastEthernet0/2
+ description Pi-Lab-Nodes
+ switchport access vlan 30
+ switchport mode access
+ switchport protected
+ spanning-tree portfast
+!
+interface FastEthernet0/3
+ description Pi-Lab-Nodes
+ switchport access vlan 30
+ switchport mode access
+ switchport protected
+ spanning-tree portfast
+!
+interface FastEthernet0/4
+ description Pi-Lab-Nodes
+ switchport access vlan 30
+ switchport mode access
+ switchport protected
+ spanning-tree portfast
+!
+interface FastEthernet0/5
+ description Pi-Lab-Nodes
+ switchport access vlan 30
+ switchport mode access
+ switchport protected
+ spanning-tree portfast
+!
+interface FastEthernet0/6
+ description Reserved-shutdown
+ switchport access vlan 10
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/7
+ description Reserved-shutdown
+ switchport access vlan 10
+ switchport mode access
+ shutdown
+!
+interface FastEthernet0/8
+ description Uplink-to-MikroTik-ether2-trunk
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan 10,20,30
+ switchport mode trunk
+!
+interface GigabitEthernet0/1
+ description Uplink-port-unused-SFP-required
+ switchport trunk encapsulation dot1q
+ switchport trunk allowed vlan 10,20,30
+ switchport mode trunk
+ shutdown
+!
+interface Vlan1
+ no ip address
+!
+interface Vlan10
+ description Management-SVI
+ ip address 10.50.10.2 255.255.255.0
+!
+ip default-gateway 10.50.10.1
+ip classless
+ip http server
+ip http secure-server
+!
+line con 0
+ exec-timeout 30 0
+ password 7 123A2A3921242021671B051B007870435540
+ logging synchronous
+ login
+line vty 0 4
+ exec-timeout 30 0
+ login local
+ transport input ssh
+line vty 5 15
+ login
+!
+ntp clock-period 36029480
+ntp server 10.50.10.1
+end
+
+# Note: this is the RAW pasted output as captured 2026-06-11 — password hashes
+# are still present for evidence chain integrity. Redaction (enable secret 5,
+# username secret 5, line con password 7) is applied when this content is
+# re-extracted into Приложение Б of appendix_content.txt.

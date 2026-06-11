@@ -1,0 +1,55 @@
+# AFTER STATE — same ping tests as 01-baseline-l2-gap.txt, post-switchport-protected
+# Captured: 2026-06-11 16:17:26 UTC
+#
+# Expected (post-fix):
+#   - Pi → Pi pings: 100% loss (gap CLOSED)
+#   - Pi → gateway: 0% loss (trunk path unchanged)
+#   - Pi → controller mTLS heartbeat: HTTP 200 (application path unchanged)
+#   - Pi → controller ICMP: 100% loss (MikroTik forward chain, unchanged)
+
+=== Pi-01 → Pi-02 (intra-VLAN, was 0% loss pre-fix) ===
+PING 10.50.30.12 (10.50.30.12) 56(84) bytes of data.
+
+--- 10.50.30.12 ping statistics ---
+3 packets transmitted, 0 received, 100% packet loss, time 2070ms
+
+
+=== Pi-02 → Pi-01 (intra-VLAN reverse, was 0% loss pre-fix) ===
+PING 10.50.30.11 (10.50.30.11) 56(84) bytes of data.
+
+--- 10.50.30.11 ping statistics ---
+3 packets transmitted, 0 received, 100% packet loss, time 2073ms
+
+
+=== Pi-01 → Pi-03 retired (intra-VLAN to retired host, was 0% loss pre-fix) ===
+PING 10.50.30.13 (10.50.30.13) 56(84) bytes of data.
+
+--- 10.50.30.13 ping statistics ---
+3 packets transmitted, 0 received, 100% packet loss, time 2088ms
+
+
+=== Pi-01 → gateway (10.50.30.1, trunk path — must stay 0% loss) ===
+PING 10.50.30.1 (10.50.30.1) 56(84) bytes of data.
+64 bytes from 10.50.30.1: icmp_seq=1 ttl=64 time=0.198 ms
+64 bytes from 10.50.30.1: icmp_seq=2 ttl=64 time=0.221 ms
+64 bytes from 10.50.30.1: icmp_seq=3 ttl=64 time=0.208 ms
+
+--- 10.50.30.1 ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 2040ms
+rtt min/avg/max/mdev = 0.198/0.209/0.221/0.009 ms
+
+=== Pi-01 → controller ICMP (10.50.20.200) — unchanged by switch fix ===
+PING 10.50.20.200 (10.50.20.200) 56(84) bytes of data.
+
+--- 10.50.20.200 ping statistics ---
+3 packets transmitted, 0 received, 100% packet loss, time 2057ms
+
+
+=== Pi-01 → controller mTLS heartbeat (real application path) ===
+Jun 11 19:16:27 pi-01 python[2449]: HTTP Request: POST https://controller.thesis.local/api/v1/nodes/pi-01/heartbeat "HTTP/1.1 200 OK"
+Jun 11 19:16:53 pi-01 python[2449]: HTTP Request: POST https://controller.thesis.local/api/v1/nodes/pi-01/heartbeat "HTTP/1.1 200 OK"
+Jun 11 19:17:21 pi-01 python[2449]: HTTP Request: POST https://controller.thesis.local/api/v1/nodes/pi-01/heartbeat "HTTP/1.1 200 OK"
+
+=== Controller DB: most recent heartbeats for Pi-01 + Pi-02 (no collateral damage check) ===
+  pi-01: last_heartbeat_at=2026-06-11 16:17:21Z  (age: 33s)
+  pi-02: last_heartbeat_at=2026-06-11 16:17:25Z  (age: 29s)

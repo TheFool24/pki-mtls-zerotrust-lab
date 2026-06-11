@@ -1,0 +1,32 @@
+# Cisco Catalyst 3560 thesis-switch — switchport protected applied to Fa0/2-5
+# Captured: 2026-06-11 19:14 EEST (16:14 UTC) by admin via SSH from Windows
+# mgmt station (VLAN 10) to switch SVI 10.50.10.2
+#
+# Effect: protected ports do not forward L2 frames to each other; they
+# DO forward freely to non-protected ports. Trunk port Fa0/8 (uplink to
+# MikroTik ether2) is NOT protected — so all legitimate traffic
+# (Pi → gateway/MikroTik → routed flows) is unaffected.
+
+=== Configuration commands ===
+
+thesis-switch#conf t
+Enter configuration commands, one per line.  End with CNTL/Z.
+thesis-switch(config)#interface range Fa0/2 - 5
+thesis-switch(config-if-range)# switchport protected
+thesis-switch(config-if-range)#end
+thesis-switch#write memory
+Building configuration...
+[OK]
+
+=== Per-interface verification ===
+
+thesis-switch#show interfaces fa0/2 switchport | include Protected
+Protected: true
+thesis-switch#show interfaces fa0/3 switchport | include Protected
+Protected: true
+thesis-switch#show interfaces fa0/4 switchport | include Protected
+Protected: true
+thesis-switch#show interfaces fa0/5 switchport | include Protected
+Protected: true
+
+=== Confirmed: all 4 Pi access ports are now protected ===

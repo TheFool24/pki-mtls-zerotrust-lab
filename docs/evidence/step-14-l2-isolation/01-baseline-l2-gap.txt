@@ -1,0 +1,107 @@
+# BASELINE — current intra-VLAN reachability between Pi nodes
+# Captured: 2026-06-11 16:11:58 UTC (before switchport protected applied)
+#
+# Method: SSH from master-lab (controller, 10.50.20.200 on VLAN 20) directly
+# to each source Pi, then ping the destination Pi from within. All Pis are
+# on VLAN 30 (10.50.30.0/24, Cisco access ports Fa0/2-5). With no switchport
+# protected, intra-VLAN frames switch at L2 inside the Cisco — they never
+# reach the MikroTik forward chain, where the documented "VLAN30→VLAN30
+# DENY" rule lives.
+#
+# Expected (this baseline): 0% packet loss intra-VLAN = L2 gap is real
+
+=== Pi-01 → Pi-02 (10.50.30.11 → 10.50.30.12, intra-VLAN) ===
+PING 10.50.30.12 (10.50.30.12) 56(84) bytes of data.
+64 bytes from 10.50.30.12: icmp_seq=1 ttl=64 time=0.245 ms
+64 bytes from 10.50.30.12: icmp_seq=2 ttl=64 time=0.225 ms
+64 bytes from 10.50.30.12: icmp_seq=3 ttl=64 time=0.235 ms
+
+--- 10.50.30.12 ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 2076ms
+rtt min/avg/max/mdev = 0.225/0.235/0.245/0.008 ms
+
+=== Pi-02 → Pi-01 (10.50.30.12 → 10.50.30.11, intra-VLAN reverse) ===
+PING 10.50.30.11 (10.50.30.11) 56(84) bytes of data.
+64 bytes from 10.50.30.11: icmp_seq=1 ttl=64 time=0.219 ms
+64 bytes from 10.50.30.11: icmp_seq=2 ttl=64 time=0.239 ms
+64 bytes from 10.50.30.11: icmp_seq=3 ttl=64 time=0.202 ms
+
+--- 10.50.30.11 ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 2066ms
+rtt min/avg/max/mdev = 0.202/0.220/0.239/0.015 ms
+
+=== Pi-01 → Pi-03 retired host (10.50.30.11 → 10.50.30.13) ===
+# Note: Pi-03 agent is retired (Сценарий 3 compromise). The HOST itself
+# stays powered on per step-12 evidence (kept for forensic preservation).
+PING 10.50.30.13 (10.50.30.13) 56(84) bytes of data.
+64 bytes from 10.50.30.13: icmp_seq=1 ttl=64 time=0.257 ms
+64 bytes from 10.50.30.13: icmp_seq=2 ttl=64 time=0.209 ms
+64 bytes from 10.50.30.13: icmp_seq=3 ttl=64 time=0.214 ms
+
+--- 10.50.30.13 ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 2088ms
+rtt min/avg/max/mdev = 0.209/0.226/0.257/0.021 ms
+
+=== Pi-01 → gateway (10.50.30.1, MikroTik SVI — must remain healthy after fix) ===
+PING 10.50.30.1 (10.50.30.1) 56(84) bytes of data.
+64 bytes from 10.50.30.1: icmp_seq=1 ttl=64 time=0.228 ms
+64 bytes from 10.50.30.1: icmp_seq=2 ttl=64 time=0.250 ms
+64 bytes from 10.50.30.1: icmp_seq=3 ttl=64 time=0.231 ms
+
+--- 10.50.30.1 ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 2037ms
+rtt min/avg/max/mdev = 0.228/0.236/0.250/0.009 ms
+
+=== Pi-01 → controller (10.50.20.200, ICMP via L3 routing) ===
+PING 10.50.20.200 (10.50.20.200) 56(84) bytes of data.
+
+--- 10.50.20.200 ping statistics ---
+3 packets transmitted, 0 received, 100% packet loss, time 2075ms
+
+
+# 100% loss expected. The MikroTik forward chain only permits TCP 443 (mTLS)
+# and TCP 9000 (step-ca enrollment) from VLAN 30 → VLAN 20. ICMP falls
+# through to rule 33 (DROP-FORWARD default-deny). Heartbeats still work
+# — they use TCP 443. This is documented Zero Trust behavior, not a fault.
+
+=== Pi-01 → controller mTLS heartbeat (real application reachability proof) ===
+Jun 11 19:11:18 pi-01 python[2449]: HTTP Request: POST https://controller.thesis.local/api/v1/nodes/pi-01/heartbeat "HTTP/1.1 200 OK"
+Jun 11 19:11:50 pi-01 python[2449]: HTTP Request: POST https://controller.thesis.local/api/v1/nodes/pi-01/heartbeat "HTTP/1.1 200 OK"
+Jun 11 19:12:18 pi-01 python[2449]: HTTP Request: POST https://controller.thesis.local/api/v1/nodes/pi-01/heartbeat "HTTP/1.1 200 OK"
+
+# Heartbeat HTTP 200 = the only application-layer connectivity that matters.
+# Will be re-checked post-fix to prove no collateral damage.
+
+=== Controller DB: most recent heartbeats for Pi-01 + Pi-02 ===
+  pi-01: last_heartbeat_at=2026-06-11 16:12:18Z  (age: 2s)
+  pi-02: last_heartbeat_at=2026-06-11 16:11:51Z  (age: 29s)
+
+================================================================================
+INTERPRETATION OF BASELINE (PRE-FIX, 2026-06-11):
+================================================================================
+
+L2 GAP CONFIRMED:
+  - Pi-01 ⇄ Pi-02: 0% loss both directions
+  - Pi-01 → Pi-03 (retired): 0% loss
+  → Intra-VLAN frames switch at L2 inside the Cisco. The MikroTik forward
+    chain never sees these packets; the documented "VLAN30→VLAN30 DENY"
+    enforcement claim is currently inaccurate.
+
+TRUNK PATH HEALTHY (will remain after switchport protected):
+  - Pi-01 → 10.50.30.1 gateway: 0% loss (Cisco trunk Fa0/8 → MikroTik SVI)
+  - Pi-01 → controller mTLS heartbeat: HTTP 200 (real application path)
+  → switchport protected only affects inter-access-port forwarding. Trunk
+    port Fa0/8 is unprotected; everything via trunk is unaffected.
+
+ZERO TRUST ICMP DENY (already enforced; thesis-relevant aside):
+  - Pi-01 → controller (10.50.20.200) ICMP: 100% loss
+  → MikroTik forward chain allows nodes→controller only on TCP 443 (mTLS)
+    and TCP 9000 (enrollment); ICMP falls through to DROP-FORWARD. This is
+    a stronger Zero Trust posture than typically documented — only the
+    necessary service ports cross the VLAN boundary.
+
+WHAT WILL CHANGE AFTER `switchport protected` ON Fa0/2-5:
+  - Pi-01 ⇄ Pi-02 expected: 100% loss (gap closed at L2)
+  - Pi-01 → Pi-03 expected: 100% loss
+  - Pi-01 → gateway: still 0% loss (trunk unprotected)
+  - Pi-01 → controller mTLS heartbeat: still HTTP 200 (no collateral)
