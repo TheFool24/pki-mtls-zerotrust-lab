@@ -30,14 +30,25 @@ schema_config:
         prefix: index_
         period: 24h
 
-# Retention — 30 days as agreed in Decision 5
+# Retention — extended to 90 days on 2026-06-20 (pre-defense prep).
+# Aligned with max_query_length below. Original 30d decision (Decision 5) was
+# disk-conservative; actual ingestion footprint is ~2 GB / 30d on this host,
+# so 90d ≈ 6 GB — trivial relative to free disk (>400 GB).
 limits_config:
-  retention_period: 720h  # 30 days
+  retention_period: 2160h  # 90 days (was 720h / 30 days)
   reject_old_samples: true
   reject_old_samples_max_age: 168h  # 7 days
   max_query_series: 5000
   allow_structured_metadata: true
   volume_enabled: true
+  # Loki defaults max_query_length to 30d1h, exactly at the retention boundary.
+  # Stat panels using count_over_time({...}[$__range]) with dashboard ranges
+  # at or above the retention boundary trip this limit, even when the actual
+  # data needed is well within retention. Raised to 90d1h: queries still only
+  # return data up to retention_period (720h), but Loki no longer rejects
+  # query expressions that nominally span longer. (Added 2026-06-20 after
+  # pre-defense dashboard verification.)
+  max_query_length: 2161h  # 90d1h
 
 compactor:
   working_directory: /loki/compactor

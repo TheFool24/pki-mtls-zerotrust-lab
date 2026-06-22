@@ -68,7 +68,7 @@
       "id": 1,
       "options": {
         "colorMode": "background",
-        "graphMode": "area",
+        "graphMode": "none",
         "justifyMode": "center",
         "orientation": "auto",
         "reduceOptions": {
@@ -78,7 +78,7 @@
           "fields": "",
           "values": false
         },
-        "textMode": "value_and_name"
+        "textMode": "value"
       },
       "pluginVersion": "11.4.0",
       "targets": [
@@ -90,7 +90,7 @@
           "expr": "sum(count_over_time({container=\"thesis-controller\", event=\"audit_event\", actor_cn=~\"$actor_cn\", audit_action=~\"$action\", audit_result=~\"$result\"}[$__range]))",
           "refId": "A",
           "legendFormat": "Total events",
-          "queryType": "range"
+          "queryType": "instant"
         }
       ],
       "title": "Total Audit Events",
@@ -129,7 +129,7 @@
       "id": 2,
       "options": {
         "colorMode": "background",
-        "graphMode": "area",
+        "graphMode": "none",
         "justifyMode": "center",
         "orientation": "auto",
         "reduceOptions": {
@@ -139,7 +139,7 @@
           "fields": "",
           "values": false
         },
-        "textMode": "value_and_name"
+        "textMode": "value"
       },
       "pluginVersion": "11.4.0",
       "targets": [
@@ -151,7 +151,7 @@
           "expr": "sum(count_over_time({container=\"thesis-controller\", event=\"audit_event\", audit_result=\"success\", actor_cn=~\"$actor_cn\", audit_action=~\"$action\"}[$__range]))",
           "refId": "A",
           "legendFormat": "Successful",
-          "queryType": "range"
+          "queryType": "instant"
         }
       ],
       "title": "Successful Events",
@@ -190,7 +190,7 @@
       "id": 3,
       "options": {
         "colorMode": "background",
-        "graphMode": "area",
+        "graphMode": "none",
         "justifyMode": "center",
         "orientation": "auto",
         "reduceOptions": {
@@ -200,7 +200,7 @@
           "fields": "",
           "values": false
         },
-        "textMode": "value_and_name"
+        "textMode": "value"
       },
       "pluginVersion": "11.4.0",
       "targets": [
@@ -212,7 +212,7 @@
           "expr": "sum(count_over_time({container=\"thesis-controller\", event=\"audit_event\", audit_result=\"rejected\", actor_cn=~\"$actor_cn\", audit_action=~\"$action\"}[$__range]))",
           "refId": "A",
           "legendFormat": "Rejected",
-          "queryType": "range"
+          "queryType": "instant"
         }
       ],
       "title": "Rejected Events (Security Defense)",
@@ -251,7 +251,7 @@
       "id": 4,
       "options": {
         "colorMode": "background",
-        "graphMode": "area",
+        "graphMode": "none",
         "justifyMode": "center",
         "orientation": "auto",
         "reduceOptions": {
@@ -261,7 +261,7 @@
           "fields": "",
           "values": false
         },
-        "textMode": "value_and_name"
+        "textMode": "value"
       },
       "pluginVersion": "11.4.0",
       "targets": [
@@ -272,7 +272,8 @@
           },
           "expr": "count(sum by (actor_cn) (count_over_time({container=\"thesis-controller\", event=\"audit_event\", actor_cn=~\"$actor_cn\"}[$__range])))",
           "refId": "A",
-          "legendFormat": "Unique identities"
+          "legendFormat": "Unique identities",
+          "queryType": "instant"
         }
       ],
       "title": "Distinct Actors",
@@ -791,6 +792,6 @@
   "timezone": "browser",
   "title": "Thesis Lab \u2014 Audit Trail Explorer",
   "uid": "thesis-audit-trail",
-  "version": 4,
+  "version": 6,
   "weekStart": ""
 }
